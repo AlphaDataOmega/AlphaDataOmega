@@ -82,3 +82,24 @@ AlphaDataOmega is a decentralized social protocol and economic system built to r
 > “There are no users. Only players. There are no posts. Only signals.”  
 > – The Founders Handbook, Page ∞
 
+
+## 🛣️ Roadmap
+
+### Phase 1: Foundation
+- [x] Monorepo layout created
+- [ ] Stub all major contracts (ViewIndex, UsageOracle, Vaults)
+- [ ] Basic frontend MVP (view, retrn, bless)
+- [ ] Indexer JSON log for views
+- [ ] Deploy to testnet
+
+### Phase 2: Engagement Logic
+- [ ] Build full Bless/Burn + Boosting modules
+- [ ] Merkle drop simulation
+- [ ] VaultSplitter logic with mock payouts
+
+### Phase 3: Governance
+- [ ] CouncilNFT proposal creation
+- [ ] MasterNFT veto logic
+- [ ] Voting flow through UI
+
+
