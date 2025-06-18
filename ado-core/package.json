@@ -1,0 +1,17 @@
+{
+  "name": "ado-core",
+  "version": "1.0.0",
+  "description": "Smart contracts for the AlphaDataOmega protocol. Contains modules like `TRNUsageOracle`, `ViewIndex`, and vault logic.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.24.3"
+  }
+}
