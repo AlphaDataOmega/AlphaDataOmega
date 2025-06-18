@@ -1,16 +1,84 @@
-## Hi there 👋
+# 🧬 AlphaDataOmega: Founder’s Handbook
 
-<!--
-**AlphaDataOmega/AlphaDataOmega** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Welcome to the origin. This is the source repo for the **AlphaDataOmega** ecosystem — a decentralized, creator-first network driven by real attention, algorithmic fairness, and radical transparency.
 
-Here are some ideas to get you started:
+---
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## 📚 Project Overview
+
+AlphaDataOmega is a decentralized social protocol and economic system built to reward truth, creativity, and presence. It combines:
+
+- ⚡️ A **view-based engagement economy** (TRN rewards per verified view)
+- 🛡️ **User-controlled moderation** with on-chain flags and AI escalation
+- 🧠 **DAO-backed governance** with revenue splits to Investor NFTs and Country NFTs
+- 🪙 A dual-token system: **TRN (earn/spend)** + **BRN (mint/burn)**
+
+---
+
+## 🛠️ Core Repos & Documentation
+
+| Area | Description | Link |
+|------|-------------|------|
+| 🧠 Dev Docs | All smart contracts, system logic, and module specs | [ado-dev-docs](https://alphas-personal-organization.gitbook.io/ado-dev-docs) |
+| 🌐 User Docs | Onboarding, posting, earning, moderation, and more | [alphadataomega](https://alphas-personal-organization.gitbook.io/alphadataomega) |
+| 💻 Source Code | This repo: contracts, frontend, indexers | (you're here) |
+
+---
+
+## 🧱 System Architecture Overview
+
+| Component | Summary |
+|----------|---------|
+| `TRNUsageOracle` | Tracks earnings, debt, token flow, and Merkle syncing |
+| `ViewIndex` / `RetrnIndex` | Records verified views and returns for Merkle-based airdrops |
+| `BoostingModule` / `BlessBurnTracker` | Engagement mechanics with abuse resistance and reward routing |
+| `VaultSplitters` | Daily, post-level, stability pool and contributor payout logic |
+| `DAO Modules` | CouncilNFT, MasterNFT, ProposalFactory, CountryNFT governance flow |
+| `AMMs` | Internal TRN↔USD + TRN↔BRN swaps with peg enforcement |
+| `Moderation Stack` | GeoOracle, FlagEscalator, BurnRegistry, ModerationLog |
+| `Subscriptions & Identity` | NFT access control, anti-Sybil, biometric key shards |
+
+---
+
+## 🧑‍💻 Getting Started (For Devs)
+
+1. Clone this repo
+2. Read the full [ado-dev-docs](https://alphas-personal-organization.gitbook.io/ado-dev-docs) technical breakdown
+3. Suggested first steps:
+   - Review `contracts/ViewIndex.sol`
+   - Build out basic post/feed UI in `frontend/`
+   - Test Merkle drop logic from `indexer/` hooks
+
+---
+
+## 🔐 Contribution Zones
+
+| Zone | Who Can Build Here | Notes |
+|------|--------------------|-------|
+| 🖼️ Frontend UI | Any contributor | Built in React, Tailwind, TRN hooks |
+| 📜 Smart Contracts | Core team only | Critical logic: UsageOracle, AMMs, Moderation |
+| 🧾 Indexers | Advanced devs | Must sync with on-chain events and Merkle proofs |
+| 🧪 AI Modules | Experimental | Embedding search, Trust Oracles, auto-flag escalation |
+
+---
+
+## 💰 Governance & Revenue Structure
+
+- 💸 10% of all platform earnings flow to the DAO.
+- 🧑‍💼 33% of the DAO’s earnings are split across 100 Investor NFTs.
+- 🌍 Country NFTs earn per-jurisdiction based on view counts.
+- 🫂 Creators earn TRN directly from view activity + retrns + resonance.
+
+---
+
+## 🔗 Stay Synced
+
+- 🧑‍🎓 Read the [User Docs](https://alphas-personal-organization.gitbook.io/alphadataomega)
+- 🧪 Dive deep in the [Dev Docs](https://alphas-personal-organization.gitbook.io/ado-dev-docs)
+- 📡 Coordinate on our DAO comms (Discord, Farcaster, or the space-between...)
+
+---
+
+> “There are no users. Only players. There are no posts. Only signals.”  
+> – The Founders Handbook, Page ∞
+
