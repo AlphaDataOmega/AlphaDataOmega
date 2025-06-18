@@ -1,0 +1,28 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "postHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "blessPost",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "postHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "burnPost",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

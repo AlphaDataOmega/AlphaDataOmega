@@ -12,7 +12,7 @@ export default function Home() {
       <ConnectButton />
       <div className="mt-6">
         {mockPosts.map((post) => (
-          <PostCard key={post.hash} post={post} user={address} />
+          <PostCard key={post.hash} post={post} user={address ?? ''} />
         ))}
       </div>
     </div>
