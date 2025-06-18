@@ -1,23 +1,65 @@
 import { useState } from 'react';
+import { ethers } from 'ethers';
+import ViewIndexABI from '../abi/ViewIndex.json';
+import BlessBurnTrackerABI from '../abi/BlessBurnTracker.json';
 
-export default function PostCard({ post, user: _ }: any) {
+interface Post {
+  hash: string;
+  title: string;
+  content: string;
+}
+
+const VIEW_INDEX_ADDR = '0xYourViewIndexAddress';
+const BLESS_BURN_ADDR = '0xYourBlessBurnAddress';
+
+export default function PostCard({ post, user }: { post: Post; user: string }) {
   const [viewed, setViewed] = useState(false);
   const [blessed, setBlessed] = useState(false);
   const [burned, setBurned] = useState(false);
 
-  const handleView = () => {
-    // call ViewIndex.logView(post.hash)
-    setViewed(true);
+  const handleView = async () => {
+    if (!user || viewed) return;
+    try {
+      const provider = new ethers.BrowserProvider(
+        (window as unknown as { ethereum?: ethers.Eip1193Provider }).ethereum!
+      );
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(VIEW_INDEX_ADDR, ViewIndexABI, signer);
+      await contract.logView(post.hash);
+      setViewed(true);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleBless = () => {
-    // call BlessBurnTracker.blessPost(post.hash)
-    setBlessed(true);
+  const handleBless = async () => {
+    if (!user || blessed) return;
+    try {
+      const provider = new ethers.BrowserProvider(
+        (window as unknown as { ethereum?: ethers.Eip1193Provider }).ethereum!
+      );
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(BLESS_BURN_ADDR, BlessBurnTrackerABI, signer);
+      await contract.blessPost(post.hash);
+      setBlessed(true);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleBurn = () => {
-    // call BlessBurnTracker.burnPost(post.hash)
-    setBurned(true);
+  const handleBurn = async () => {
+    if (!user || burned) return;
+    try {
+      const provider = new ethers.BrowserProvider(
+        (window as unknown as { ethereum?: ethers.Eip1193Provider }).ethereum!
+      );
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(BLESS_BURN_ADDR, BlessBurnTrackerABI, signer);
+      await contract.burnPost(post.hash);
+      setBurned(true);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (

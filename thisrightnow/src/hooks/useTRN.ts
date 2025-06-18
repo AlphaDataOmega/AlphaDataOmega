@@ -10,10 +10,12 @@ export function useTRNBalance(address: string) {
   useEffect(() => {
     if (!address) return;
 
-    const provider = new ethers.BrowserProvider((window as any).ethereum);
+    const provider = new ethers.BrowserProvider(
+      (window as unknown as { ethereum?: ethers.Eip1193Provider }).ethereum!
+    );
     const contract = new ethers.Contract(TRN_USAGE_ORACLE, ABI, provider);
 
-    contract.getAvailableTRN(address).then((res: any) => {
+    contract.getAvailableTRN(address).then((res) => {
       setBalance(res.toString());
     });
   }, [address]);
