@@ -2,7 +2,7 @@ import fs from "fs";
 import MerkleDropABI from "./abis/MerkleDropDistributor.json";
 import { loadContract } from "./contract";
 
-async function postMerkleRoot(date: string) {
+export async function postMerkleRoot(date: string) {
   const path = `./output/merkle-${date}.json`;
   const json = JSON.parse(fs.readFileSync(path, "utf-8"));
 
@@ -18,5 +18,4 @@ async function postMerkleRoot(date: string) {
   console.log(`✅ Merkle root for ${date} posted to chain:\n  ${merkleRoot}`);
 }
 
-const today = new Date().toISOString().split("T")[0];
-postMerkleRoot(today);
+

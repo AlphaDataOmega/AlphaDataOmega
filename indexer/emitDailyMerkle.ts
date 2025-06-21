@@ -35,7 +35,7 @@ async function calculateRewards() {
   return rewards;
 }
 
-async function emitMerkleDrop() {
+export async function emitMerkleDrop() {
   const rewards = await calculateRewards();
 
   const entries = Object.entries(rewards).map(([addr, amount]) => ({
@@ -55,4 +55,4 @@ async function emitMerkleDrop() {
   );
 }
 
-emitMerkleDrop();
+
