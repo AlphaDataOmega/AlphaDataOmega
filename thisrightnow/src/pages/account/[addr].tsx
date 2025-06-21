@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import merkle from "@/data/merkle-2025-06-18.json";
 import { readTRNEarnings } from "@/utils/readOracle";
+import EarningsBreakdown from "@/components/EarningsBreakdown";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -64,6 +65,8 @@ export default function AccountPage() {
           <p>Investor: {vaults.investor} TRN</p>
         </div>
       </div>
+
+      <EarningsBreakdown address={addr as string} />
     </div>
   );
 }
