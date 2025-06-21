@@ -32,3 +32,26 @@ export function buildMerkleFromViews(viewData: { viewer: string; amount: number 
 
   return root;
 }
+
+export function buildMerkleTree(entries: { address: string; amount: bigint }[]) {
+  const leaves = entries.map((e) =>
+    keccak256(`${e.address.toLowerCase()}-${e.amount.toString()}`)
+  );
+
+  const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+
+  const claims: Record<string, { amount: string; proof: string[] }> = {};
+  for (let i = 0; i < leaves.length; i++) {
+    const leaf = leaves[i];
+    const entry = entries[i];
+    claims[entry.address.toLowerCase()] = {
+      amount: entry.amount.toString(),
+      proof: tree.getHexProof(leaf),
+    };
+  }
+
+  return {
+    merkleRoot: tree.getHexRoot(),
+    claims,
+  };
+}
