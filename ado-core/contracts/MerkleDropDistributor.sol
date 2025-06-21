@@ -10,12 +10,14 @@ interface ITRNUsageOracle {
 /// @title MerkleDropDistributor
 /// @notice Allows users to claim TRN rewards from Merkle proofs based on verified engagement (e.g. views).
 contract MerkleDropDistributor {
-    bytes32 public merkleRoot;
+    /// @notice merkle root by drop id (e.g. daily distribution timestamp)
+    mapping(uint256 => bytes32) public merkleRoots;
     address public oracle;
     address public owner;
-    mapping(address => bool) public hasClaimed;
+    mapping(uint256 => mapping(address => bool)) public hasClaimed;
 
-    event Claimed(address indexed user, uint256 amount);
+    event MerkleRootUpdated(uint256 indexed dropId, bytes32 root);
+    event Claimed(uint256 indexed dropId, address indexed user, uint256 amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not owner");
@@ -33,21 +35,22 @@ contract MerkleDropDistributor {
         owner = newOwner;
     }
 
-    /// @notice Set the Merkle root for the current drop period
-    function setMerkleRoot(bytes32 root) external onlyOwner {
-        merkleRoot = root;
+    /// @notice Set the Merkle root for a specific drop period
+    function setMerkleRoot(bytes32 root, uint256 dropId) external onlyOwner {
+        merkleRoots[dropId] = root;
+        emit MerkleRootUpdated(dropId, root);
     }
 
-    /// @notice Claim TRN with Merkle proof
-    function claim(uint256 amount, bytes32[] calldata proof) external {
-        require(!hasClaimed[msg.sender], "Already claimed");
+    /// @notice Claim TRN with Merkle proof for a given drop
+    function claim(uint256 dropId, address account, uint256 amount, bytes32[] calldata proof) external {
+        require(!hasClaimed[dropId][account], "Already claimed");
 
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender, amount));
-        require(MerkleProof.verify(proof, merkleRoot, leaf), "Invalid proof");
+        bytes32 leaf = keccak256(abi.encode(account, amount));
+        require(MerkleProof.verify(proof, merkleRoots[dropId], leaf), "Invalid proof");
 
-        hasClaimed[msg.sender] = true;
-        emit Claimed(msg.sender, amount);
+        hasClaimed[dropId][account] = true;
+        emit Claimed(dropId, account, amount);
 
-        ITRNUsageOracle(oracle).reportEarning(msg.sender, amount, keccak256("merkle-drop"));
+        ITRNUsageOracle(oracle).reportEarning(account, amount, keccak256("merkle-drop"));
     }
 }
