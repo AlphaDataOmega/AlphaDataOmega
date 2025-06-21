@@ -30,3 +30,22 @@ setInterval(() => {
   fs.writeFileSync(`./output/views-${today}.json`, JSON.stringify(deduped, null, 2));
   console.log(`✅ Wrote ${deduped.length} deduped views to views-${today}.json`);
 }, 60000);
+
+export function getDailyViews() {
+  const today = new Date().toISOString().split("T")[0];
+  try {
+    const raw = fs.readFileSync(`./output/views-${today}.json`, "utf-8");
+    const logs: { postHash: string; viewer: string; timestamp: number }[] = JSON.parse(raw);
+    const result: Record<string, { viewers: Record<string, number> }> = {};
+
+    for (const { postHash, viewer } of logs) {
+      if (!result[postHash]) result[postHash] = { viewers: {} };
+      const viewsByAddr = result[postHash].viewers;
+      viewsByAddr[viewer] = (viewsByAddr[viewer] || 0) + 1;
+    }
+
+    return result;
+  } catch {
+    return {};
+  }
+}
