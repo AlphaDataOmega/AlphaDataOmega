@@ -1,11 +1,4 @@
 export async function getPostEarnings(postHash: string): Promise<any> {
-  // Replace with actual fetch later
-  return {
-    views: 3,
-    retrns: 4,
-    blessings: 2,
-    resonance: 5,
-    vault: 1,
-    total: 15,
-  };
+  const res = await fetch(`http://localhost:4000/api/earnings/post/${postHash}`);
+  return await res.json();
 }
