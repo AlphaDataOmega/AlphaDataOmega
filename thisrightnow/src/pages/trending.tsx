@@ -1,24 +1,19 @@
-import { useEffect, useState } from "react";
 import PostCard from "@/components/PostCard";
 import { useAccount } from "wagmi";
+import { useTrending } from "@/utils/useTrending";
 
 export default function TrendingPage() {
-  const [posts, setPosts] = useState<any[]>([]);
   const { address } = useAccount();
+  const { posts, isLoading } = useTrending();
 
-  useEffect(() => {
-    fetch("/api/trending")
-      .then((res) => res.json())
-      .then(setPosts)
-      .catch(console.error);
-  }, []);
+  if (isLoading) return <div className="p-6">Loading…</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">🔥 Trending Retrns</h1>
 
       <div className="space-y-6">
-        {posts.map((p, i) => (
+        {posts.map((p: any, i: number) => (
           <div key={p.hash} className="bg-white rounded shadow p-4">
             <div className="flex justify-between mb-1 text-xs text-gray-500">
               <span># {i + 1}</span>
