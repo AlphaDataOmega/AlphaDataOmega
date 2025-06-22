@@ -3,7 +3,7 @@ import ViewIndexABI from "@/abi/ViewIndex.json";
 import OracleABI from "@/abi/TRNUsageOracle.json";
 import { loadContract } from "./contract";
 import { uploadToIPFS } from "./uploadToIPFS";
-import { applyTrustWeight } from "../../../shared/TrustWeightedOracle";
+import { applyTrustWeight } from "@/utils/TrustWeightedOracle";
 import { ethers } from "ethers";
 
 export async function submitRetrn(
