@@ -1,60 +1,76 @@
-import fs from "fs";
-import path from "path";
+import { writeFileSync } from "fs";
 import { loadContract } from "./contract";
 import ViewIndexABI from "./abis/ViewIndex.json";
-import RetrnIndexABI from "./abis/RetrnIndex.json";
+import BlessBurnTrackerABI from "./abis/BlessBurnTracker.json";
 import BoostingModuleABI from "./abis/BoostingModule.json";
-import { fetchPost } from "./utils/fetchPost";
-import { getResonanceScore } from "./utils/getResonanceScore";
-import { calcTrendingScore } from "./utils/calcTrendingScore";
+import RetrnIndexABI from "./abis/RetrnIndex.json";
+import { applyTrustWeight } from "../shared/TrustWeightedOracle";
 
-async function main() {
-  const ViewIndex = await loadContract("ViewIndex", ViewIndexABI);
-  const RetrnIndex = await loadContract("RetrnIndex", RetrnIndexABI);
-  const BoostingModule = await loadContract("BoostingModule", BoostingModuleABI);
+export type TrendingScore = {
+  post: string;
+  score: number;
+  blesses: number;
+  retrns: number;
+  boostTRN: number;
+};
 
-  const recentHashes: string[] = await ViewIndex.getRecentPosts();
+export async function generateTrendingScores() {
+  const viewIndex = await loadContract("ViewIndex", ViewIndexABI);
+  const blessBurn = await loadContract("BlessBurnTracker", BlessBurnTrackerABI);
+  const retrnIndex = await loadContract("RetrnIndex", RetrnIndexABI);
+  const boosting = await loadContract("BoostingModule", BoostingModuleABI);
 
-  const posts = await Promise.all(
-    recentHashes.map(async (hash) => {
-      const post = await fetchPost(hash);
-      const category = Array.isArray((post as any).tags) && (post as any).tags.length > 0
-        ? (post as any).tags[0]
-        : undefined;
-      const retrns: string[] = await RetrnIndex.getRetrns(hash);
-      const boostData = await BoostingModule.getBoost(hash);
-      const boostTRN = boostData && boostData.amount ? Number(boostData.amount) / 1e18 : 0;
-      const resonance = await getResonanceScore(hash);
+  const recentPosts: string[] = await viewIndex.getRecentPosts();
 
-      const score = calcTrendingScore({
-        retrns: retrns.length,
-        boostTRN,
-        resonance,
-        createdAt: post.timestamp,
-      });
+  const scores: TrendingScore[] = [];
 
-      return {
-        hash,
-        content: post.content,
-        author: post.author,
-        timestamp: post.timestamp,
-        retrns: retrns.length,
-        boostTRN,
-        resonance,
-        score,
-        category,
-      };
-    })
-  );
+  for (const hash of recentPosts) {
+    const blessEvents = await blessBurn.queryFilter(
+      blessBurn.filters.Blessed(hash)
+    );
+    const retrnEvents = await retrnIndex.queryFilter(
+      retrnIndex.filters.Retrn(hash)
+    );
+    const boostEvents = await boosting.queryFilter(
+      boosting.filters.Boosted(hash)
+    );
 
-  const sorted = posts.sort((a, b) => b.score - a.score);
+    let score = 0;
+    let blesses = 0;
+    let retrns = 0;
+    let boostTRN = 0;
 
-  const outputPath = path.join(__dirname, "output", "trending.json");
-  fs.writeFileSync(outputPath, JSON.stringify(sorted, null, 2));
-  console.log(`✅ Trending scores written to ${outputPath}`);
+    for (const e of blessEvents) {
+      const trustTRN = await applyTrustWeight(e.args.user, 1);
+      score += trustTRN;
+      blesses++;
+    }
+
+    for (const e of retrnEvents) {
+      const trustTRN = await applyTrustWeight(e.args.user, 2);
+      score += trustTRN;
+      retrns++;
+    }
+
+    for (const e of boostEvents) {
+      const baseTRN = parseFloat(e.args.amount.toString());
+      const trustTRN = await applyTrustWeight(e.args.user, baseTRN * 3);
+      score += trustTRN;
+      boostTRN += baseTRN;
+    }
+
+    scores.push({ post: hash, score, blesses, retrns, boostTRN });
+  }
+
+  scores.sort((a, b) => b.score - a.score);
+  writeFileSync("indexer/output/trending.json", JSON.stringify(scores, null, 2));
+  console.log("✅ Trending index updated.");
 }
 
-main().catch((err) => {
-  console.error("❌ Error running trending indexer:", err);
-  process.exit(1);
-});
+if (require.main === module) {
+  generateTrendingScores().catch((err) => {
+    console.error("❌ Error generating trending scores:", err);
+    process.exit(1);
+  });
+}
+
