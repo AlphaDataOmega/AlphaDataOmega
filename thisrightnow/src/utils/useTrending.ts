@@ -3,8 +3,9 @@ import useSWR from "swr";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useTrending(category?: string) {
+  const query = category ? `?category=${encodeURIComponent(category)}` : "";
   const { data, error, isLoading } = useSWR(
-    category ? `/api/trending?category=${category}` : `/api/trending`,
+    `/api/trending${query}`,
     fetcher,
     { refreshInterval: 60000 }
   );
