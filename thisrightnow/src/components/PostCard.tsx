@@ -20,8 +20,7 @@ export default function PostCard({
   const [data, setData] = useState(post || null);
   const [retrns, setRetrns] = useState<any[]>([]);
   const [earnings, setEarnings] = useState<number | null>(null);
-  const author = post?.author || data?.author;
-  const trust = useTrustScore(post?.author);
+  const trust = useTrustScore(post.author);
 
   useEffect(() => {
     if (!post) fetchPost(ipfsHash).then(setData).catch(console.error);
@@ -52,31 +51,23 @@ export default function PostCard({
 
   return (
     <div className="bg-white border rounded p-4 shadow-sm">
-      <span className="text-sm text-gray-600">
-        {author?.slice(0, 8)}...
+      <div className="text-sm text-gray-600 flex items-center space-x-2">
+        <span className="font-mono">{post.author}</span>
+
         {trust && (
           <span
-            className={`ml-2 px-2 py-1 text-xs rounded font-bold ${
+            className={`px-2 py-0.5 text-xs rounded font-bold ${
               trust.score >= 80
                 ? "bg-green-200 text-green-800"
                 : trust.score >= 50
-                ? "bg-yellow-200 text-yellow-800"
-                : "bg-red-200 text-red-800"
+                ? "bg-yellow-100 text-yellow-700"
+                : "bg-red-100 text-red-600"
             }`}
           >
             Trust: {trust.score}
           </span>
         )}
-      </span>
-      {trust && (
-        <div className="text-xs text-gray-500 mt-1">
-          {trust.score >= 80
-            ? "Trusted Contributor"
-            : trust.score >= 50
-            ? "Neutral Contributor"
-            : "Low Trust Score"}
-        </div>
-      )}
+      </div>
       <p>{data.content}</p>
       <div className="text-xs text-gray-500 mt-2">
         {data.tags?.join(", ")} · {new Date(data.timestamp).toLocaleString()}
