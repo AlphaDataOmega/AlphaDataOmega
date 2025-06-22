@@ -18,6 +18,15 @@ export default function BoostPage() {
   }, [address]);
 
   const canBoost = parseEther(amount || "0") <= BigInt(oracleTRN);
+  const usageRatio =
+    parseFloat(amount || "0") /
+    parseFloat(formatEther(oracleTRN || "1"));
+  let barColor = "bg-green-500";
+  if (usageRatio > 1) {
+    barColor = "bg-red-500";
+  } else if (usageRatio > 0.5) {
+    barColor = "bg-orange-500";
+  }
 
   const handleBoost = async () => {
     setStatus("Sending transaction...");
@@ -64,10 +73,29 @@ export default function BoostPage() {
               onChange={(e) => setAmount(e.target.value)}
               className="w-full p-2 border rounded"
             />
-            <p className="text-sm text-gray-600">
-              Available TRN via Oracle: {formatEther(oracleTRN)}
+          <p className="text-sm text-gray-600">
+            Available TRN via Oracle: {formatEther(oracleTRN)}
+          </p>
+          <div className="mt-2">
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Boost Allocation
+            </label>
+
+            <div className="w-full bg-gray-200 rounded h-4 overflow-hidden">
+              <div
+                className={`${barColor} h-4`}
+                style={{
+                  width: `${Math.min(usageRatio * 100, 100)}%`,
+                  transition: "width 0.3s ease",
+                }}
+              />
+            </div>
+
+            <p className="text-xs text-gray-500 mt-1">
+              Using {amount || "0"} / {formatEther(oracleTRN)} TRN
             </p>
           </div>
+        </div>
 
           <button
             onClick={handleBoost}
