@@ -1,31 +1,14 @@
 import { useEffect, useState } from "react";
+import { getClaimEvents, ClaimEvent } from "@/utils/getClaimEvents";
 
-type Claim = {
-  type: "merkle" | "investor" | "contributor";
-  amount: string;
-  timestamp: number;
-  tx: string;
-};
+type Claim = ClaimEvent;
 
 export default function ClaimHistory({ address }: { address: string }) {
   const [claims, setClaims] = useState<Claim[]>([]);
 
   useEffect(() => {
-    // Mock data — replace with real fetch from indexer or subgraph later
-    setClaims([
-      {
-        type: "merkle",
-        amount: "42.69",
-        timestamp: Date.now() - 86_400_000 * 1,
-        tx: "0xabc123...",
-      },
-      {
-        type: "investor",
-        amount: "88.01",
-        timestamp: Date.now() - 86_400_000 * 2,
-        tx: "0xdef456...",
-      },
-    ]);
+    if (!address) return;
+    getClaimEvents(address).then(setClaims);
   }, [address]);
 
   return (
