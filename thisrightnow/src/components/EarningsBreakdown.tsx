@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatEther, parseEther } from "ethers";
 
 export default function EarningsBreakdown({ address }: { address: string }) {
   const [data, setData] = useState<any>(null);
@@ -12,6 +13,11 @@ export default function EarningsBreakdown({ address }: { address: string }) {
 
   if (!data) return <p className="text-gray-500">Loading earnings...</p>;
 
+  const merkleClaimable = parseEther(String(data.merkleTRN || 0));
+  const investorClaimable = parseEther(String(data.vaults.investor || 0));
+  const contributorClaimable = parseEther(String(data.vaults.contributor || 0));
+  const total = merkleClaimable + investorClaimable + contributorClaimable;
+
   return (
     <div className="mt-4 space-y-4">
       <div className="bg-gray-100 p-4 rounded">
@@ -20,6 +26,21 @@ export default function EarningsBreakdown({ address }: { address: string }) {
         <p>🏦 Investor Vault: {data.vaults.investor} TRN</p>
         <p>🧑‍💻 Contributor Vault: {data.vaults.contributor} TRN</p>
         <p>🌳 Merkle Drop: {data.merkleTRN} TRN</p>
+        <div className="space-y-3 mt-4">
+          <p>
+            <strong>Merkle Airdrops:</strong> {formatEther(merkleClaimable)} TRN
+          </p>
+          <p>
+            <strong>Investor Vault:</strong> {formatEther(investorClaimable)} TRN
+          </p>
+          <p>
+            <strong>Contributor Vault:</strong> {formatEther(contributorClaimable)} TRN
+          </p>
+          <p>
+            <strong>Total Claimable:</strong>{" "}
+            <span className="text-green-600">{formatEther(total)} TRN</span>
+          </p>
+        </div>
       </div>
 
       <div className="bg-gray-100 p-4 rounded">
