@@ -11,7 +11,7 @@ export async function submitRetrn(originalHash: string, content: string, tags: s
   });
 
   const contract = await loadContract("RetrnIndex", RetrnIndexABI);
-  await (contract as any).registerRetrn(ipfsHash, originalHash);
+  await (contract as any).logRetrn(ipfsHash, originalHash);
 
   return ipfsHash;
 }
