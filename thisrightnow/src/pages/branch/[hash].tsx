@@ -1,12 +1,15 @@
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchPost } from "@/utils/fetchPost";
 import { loadContract } from "@/utils/contract";
 import RetrnIndexABI from "@/abi/RetrnIndex.json";
 import PostCard from "@/components/PostCard";
 
+const RETRN_INDEX = "0xYourContractAddressHere";
+
 async function fetchRetrns(parent: string) {
-  const contract = await loadContract("RetrnIndex", RetrnIndexABI);
+  const contract = await loadContract(RETRN_INDEX, RetrnIndexABI);
   const hashes: string[] = await (contract as any).getRetrns(parent);
   const data = await Promise.all(
     hashes.map(async (h) => {
@@ -31,6 +34,12 @@ function RecursiveRetrnTree({ parentHash }: { parentHash: string }) {
       {children.map((child) => (
         <div key={child.hash}>
           <PostCard ipfsHash={child.hash} post={child} />
+          <Link
+            href={`/branch/${child.hash}`}
+            className="text-sm text-blue-600 underline mt-1 inline-block"
+          >
+            View branch →
+          </Link>
           <RecursiveRetrnTree parentHash={child.hash} />
         </div>
       ))}
