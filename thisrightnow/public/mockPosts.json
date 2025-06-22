@@ -1,4 +1,4 @@
 [
-  { "hash": "0xabc123", "title": "First Post", "content": "This is your first signal." },
-  { "hash": "0xdef456", "title": "Second Post", "content": "This one has a retrn coming." }
+  { "ipfsHash": "ipfs://bafkreighfakehash1" },
+  { "ipfsHash": "ipfs://bafkreighfakehash2" }
 ]
