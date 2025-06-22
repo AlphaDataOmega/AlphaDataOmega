@@ -1,6 +1,5 @@
-import { ethers } from "ethers";
-
-export async function loadContract(name: string, abi: ethers.InterfaceAbi) {
+export async function loadContract(name: string, abi: any) {
+  const { ethers } = await import("ethers");
   const provider = new ethers.JsonRpcProvider(
     process.env.RPC_URL || "http://localhost:8545"
   );
