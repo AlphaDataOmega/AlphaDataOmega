@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { ethers, formatEther, parseEther } from "ethers";
-import { loadContract } from "@/utils/contract";
-import BoostingModuleABI from "@/abi/BoostingModule.json";
+import { formatEther, parseEther } from "ethers";
+import { boostPost } from "@/utils/engagement";
 import { getOracleBalance } from "@/utils/oracle";
 import { useAccount } from "wagmi";
 
@@ -32,16 +31,7 @@ export default function BoostPage() {
     setStatus("Sending transaction...");
 
     try {
-      const contract = await loadContract(
-        "BoostingModule",
-        BoostingModuleABI as any,
-      );
-      const hashBytes = ethers.encodeBytes32String(postHash);
-      const boostAmount = ethers.parseEther(amount);
-
-      const tx = await (contract as any).startBoost(hashBytes, boostAmount);
-      await tx.wait();
-
+      await boostPost(postHash, parseFloat(amount));
       setStatus("✅ Boost started successfully!");
     } catch (err) {
       console.error(err);
