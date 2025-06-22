@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { decryptVault } from "@/utils/decryptVault";
+import { fetchFromIPFS } from "@/utils/ipfs";
 
 export default function VaultRecovery({ onUnlock }: { onUnlock: () => void }) {
   const [passphrase, setPassphrase] = useState("");
@@ -24,6 +25,11 @@ export default function VaultRecovery({ onUnlock }: { onUnlock: () => void }) {
 
       console.log("\ud83d\udd13 Vault Restored Keys:", keys);
       localStorage.setItem("ado.vault.unlocked", "true");
+      const hash = localStorage.getItem("ado.vault.ipfsHash");
+      if (hash) {
+        const remoteVault = await fetchFromIPFS(hash);
+        console.log("\ud83d\udd10 Remote Vault Keys", remoteVault);
+      }
       onUnlock();
     } catch (err: any) {
       setError(err.message);

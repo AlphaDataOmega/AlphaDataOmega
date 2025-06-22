@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { encryptVault } from "@/utils/encryptVault";
 import { pinVaultToIPFS } from "@/utils/pinVaultToIPFS";
+import { uploadVaultKeys } from "@/utils/uploadVaultKeys";
 
 const defaultKeys = [
   "Voice",
@@ -36,9 +37,11 @@ export default function VaultInit({ onComplete }: { onComplete: () => void }) {
       return;
     }
 
+    const userAddress = (window as any).ethereum?.selectedAddress || "anon";
+
     const encrypted = await encryptVault(keys, passphrase);
     const payload = {
-      address: (window as any).ethereum.selectedAddress || "anon",
+      address: userAddress,
       createdAt: Date.now(),
       encryptedVault: encrypted.encrypted,
       iv: encrypted.iv,
@@ -53,6 +56,7 @@ export default function VaultInit({ onComplete }: { onComplete: () => void }) {
     // Save metadata locally
     localStorage.setItem("ado.vault.cid", cid);
     localStorage.setItem("ado.vault.initialized", "true");
+    await uploadVaultKeys(keys, userAddress);
     setError("");
     onComplete();
   };
