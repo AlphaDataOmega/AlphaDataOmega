@@ -3,15 +3,20 @@ import useSWR from "swr";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useTrending(category?: string) {
-  const query = category ? `?category=${encodeURIComponent(category)}` : "";
   const { data, error, isLoading } = useSWR(
-    `/api/trending${query}`,
+    "/indexer/output/trending.json",
     fetcher,
     { refreshInterval: 60000 }
   );
 
+  let posts = (data as any[]) || [];
+  if (category) {
+    const cat = category.toLowerCase();
+    posts = posts.filter((p) => p.category?.toLowerCase() === cat);
+  }
+
   return {
-    posts: data || [],
+    posts,
     isLoading,
     isError: !!error,
   };
