@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 
 export default function ModAlertsPage() {
   const [alerts, setAlerts] = useState<any[]>([]);
+  const { address } = useAccount();
 
   useEffect(() => {
     fetch("/api/mod-alerts")
@@ -12,7 +14,7 @@ export default function ModAlertsPage() {
   const handleDecision = async (hash: string, decision: string) => {
     await fetch(`/api/mod-alerts/resolve`, {
       method: "POST",
-      body: JSON.stringify({ hash, decision }),
+      body: JSON.stringify({ hash, decision, modAddress: address }),
       headers: { "Content-Type": "application/json" },
     });
     setAlerts((a) => a.filter((x) => x.postHash !== hash));
