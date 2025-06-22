@@ -44,6 +44,31 @@ export async function loadAlertsFromStorageOrIPFS(): Promise<ModAlert[]> {
   ];
 }
 
-export async function recordModeratorDecision(hash: string, decision: string): Promise<void> {
-  console.log(`moderator decision for ${hash}: ${decision}`);
+import { logTrustAuditEvent } from "./trustAudit";
+import { getCategoryFromPost } from "./fetchPost";
+import { getTrustScore } from "./trust";
+import { updateTrustScore } from "./trust";
+
+export async function recordModeratorDecision(
+  postHash: string,
+  decision: string,
+  modAddress: string,
+): Promise<void> {
+  const category = await getCategoryFromPost(postHash);
+  const delta = decision === "approve" ? 2 : -2;
+  const prev = getTrustScore(modAddress, category);
+  const next = Math.max(0, Math.min(100, prev + delta));
+
+  await logTrustAuditEvent({
+    actor: modAddress,
+    category,
+    postHash,
+    delta,
+    reason: decision === "approve" ? "mod_approval" : "mod_dismissal",
+    timestamp: Date.now(),
+    prev,
+    next,
+  });
+
+  updateTrustScore(modAddress, category, delta);
 }
