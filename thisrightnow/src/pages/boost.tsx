@@ -4,6 +4,7 @@ import { loadContract } from "@/utils/contract";
 import BoostingModuleABI from "@/abi/BoostingModule.json";
 import { getOracleBalance } from "@/utils/oracle";
 import { useAccount } from "wagmi";
+import TrustGate from "@/components/TrustGate";
 
 export default function BoostPage() {
   const { address } = useAccount();
@@ -50,7 +51,8 @@ export default function BoostPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
+    <TrustGate>
+      <div className="max-w-xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">🚀 Boost a Post</h1>
 
       <div className="space-y-4">
@@ -112,5 +114,6 @@ export default function BoostPage() {
         {status && <p className="mt-3 text-sm text-gray-700">{status}</p>}
       </div>
     </div>
+    </TrustGate>
   );
 }
