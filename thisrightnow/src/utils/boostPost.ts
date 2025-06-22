@@ -2,14 +2,14 @@ import { ethers } from "ethers";
 import BoostingModuleABI from "@/abi/BoostingModule.json";
 import { loadContract } from "./contract";
 import { applyTrustWeight } from "@/utils/TrustWeightedOracle";
+import { fetchTrustScore } from "@/utils/fetchTrustScore";
+import { getSigner } from "@/utils/signer";
 
 export async function boostPost(ipfsHash: string, baseTRN: number): Promise<string> {
-  const provider = new ethers.BrowserProvider(
-    (window as unknown as { ethereum?: ethers.Eip1193Provider }).ethereum!
-  );
-  const signer = await provider.getSigner();
+  const signer = await getSigner();
   const userAddr = await signer.getAddress();
 
+  const trustScore = await fetchTrustScore(userAddr);
   const weightedTRN = await applyTrustWeight(userAddr, baseTRN);
 
   const contract = await loadContract("BoostingModule", BoostingModuleABI as any);
@@ -18,6 +18,8 @@ export async function boostPost(ipfsHash: string, baseTRN: number): Promise<stri
     ethers.parseEther(weightedTRN.toString())
   );
   await tx.wait();
+
+  console.log(`[BOOST] ${userAddr} trust: ${trustScore}, scaled TRN: ${weightedTRN}`);
 
   return tx.hash as string;
 }
