@@ -7,7 +7,7 @@ export default function TrendingPage() {
   const { address } = useAccount();
 
   useEffect(() => {
-    fetch("/trending.json")
+    fetch("/api/trending")
       .then((res) => res.json())
       .then(setPosts)
       .catch(console.error);
