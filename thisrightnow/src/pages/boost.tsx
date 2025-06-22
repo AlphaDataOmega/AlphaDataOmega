@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { formatEther, parseEther } from "ethers";
-import { boostPost } from "@/utils/engagement";
+import { boostPost } from "@/utils/boostPost";
+import { applyTrustWeight } from "@/utils/TrustWeightedOracle";
 import { getOracleBalance } from "@/utils/oracle";
 import { useAccount } from "wagmi";
 
@@ -10,11 +11,20 @@ export default function BoostPage() {
   const [amount, setAmount] = useState("5");
   const [status, setStatus] = useState("");
   const [oracleTRN, setOracleTRN] = useState("0");
+  const [weightedTRN, setWeightedTRN] = useState(0);
 
   useEffect(() => {
     if (!address) return;
     getOracleBalance(address).then(setOracleTRN);
   }, [address]);
+
+  useEffect(() => {
+    if (!address) {
+      setWeightedTRN(0);
+      return;
+    }
+    applyTrustWeight(address, parseFloat(amount || "0")).then(setWeightedTRN);
+  }, [address, amount]);
 
   const canBoost = parseEther(amount || "0") <= BigInt(oracleTRN);
   const usageRatio =
@@ -83,6 +93,9 @@ export default function BoostPage() {
 
             <p className="text-xs text-gray-500 mt-1">
               Using {amount || "0"} / {formatEther(oracleTRN)} TRN
+            </p>
+            <p className="text-sm text-gray-500">
+              Boost power adjusted for trust: <strong>{weightedTRN.toFixed(2)} TRN</strong>
             </p>
           </div>
         </div>
