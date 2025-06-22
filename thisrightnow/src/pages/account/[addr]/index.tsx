@@ -7,6 +7,25 @@ import ClaimHistory from "@/components/ClaimHistory";
 import { useTrending } from "@/utils/useTrending";
 import PostCard from "@/components/PostCard";
 
+function TrustBadge({ category, score }: { category: string; score: number }) {
+  const color =
+    score >= 90
+      ? "bg-green-600"
+      : score >= 70
+      ? "bg-yellow-500"
+      : score >= 50
+      ? "bg-gray-400"
+      : "bg-red-500";
+
+  return (
+    <div
+      className={`inline-block ${color} text-white px-3 py-1 rounded-full text-xs mr-2 mb-2`}
+    >
+      {category}: {score}
+    </div>
+  );
+}
+
 const categories = ["all", "memes", "tech", "politics", "ai", "news"];
 
 export default function AccountPage() {
@@ -16,6 +35,7 @@ export default function AccountPage() {
   const [merkleClaim, setMerkleClaim] = useState<any>(null);
   const [oracleBalance, setOracleBalance] = useState<string>("...");
   const [vaults, setVaults] = useState({ contributor: 0, investor: 0 });
+  const [trust, setTrust] = useState<Record<string, number>>({});
 
   const { posts, isLoading } = useTrending(
     selected === "all" ? undefined : selected
@@ -42,6 +62,14 @@ export default function AccountPage() {
 
     // Placeholder vault earnings – replace with actual calls
     setVaults({ contributor: 25, investor: 50 }); // Simulated TRN
+  }, [addr]);
+
+  useEffect(() => {
+    if (!addr) return;
+    fetch(`/api/trust/${addr}`)
+      .then((res) => res.json())
+      .then((data) => setTrust(data.trust || {}))
+      .catch(console.error);
   }, [addr]);
 
   if (!addr) return <p>Loading...</p>;
@@ -79,6 +107,13 @@ export default function AccountPage() {
 
       <EarningsBreakdown address={addr as string} />
       <ClaimHistory address={addr as string} />
+
+      <h2 className="text-xl font-semibold mt-6 mb-2">🧠 Category Trust</h2>
+      <div className="flex flex-wrap">
+        {Object.entries(trust).map(([category, score]) => (
+          <TrustBadge key={category} category={category} score={score as number} />
+        ))}
+      </div>
 
       <div className="flex flex-wrap gap-2 my-6">
         {categories.map((cat) => (
