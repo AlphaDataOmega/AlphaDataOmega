@@ -17,7 +17,7 @@ export default function TrendingPage() {
           <div key={p.hash} className="bg-white rounded shadow p-4">
             <div className="flex justify-between mb-1 text-xs text-gray-500">
               <span># {i + 1}</span>
-              <span>🔥 Score: {p.score.toFixed(2)}</span>
+              <span>🔥 Score: {p.trustAdjustedScore.toFixed(2)}</span>
             </div>
             <PostCard ipfsHash={p.hash} post={p} viewerAddr={address} />
           </div>

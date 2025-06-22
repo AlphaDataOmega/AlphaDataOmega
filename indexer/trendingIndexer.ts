@@ -4,11 +4,13 @@ import ViewIndexABI from "./abis/ViewIndex.json";
 import BlessBurnTrackerABI from "./abis/BlessBurnTracker.json";
 import BoostingModuleABI from "./abis/BoostingModule.json";
 import RetrnIndexABI from "./abis/RetrnIndex.json";
-import { applyTrustWeight } from "../shared/TrustWeightedOracle";
+import { applyTrustWeight, getTrustWeight } from "../shared/TrustWeightedOracle";
+import { fetchPost } from "./utils/fetchPost";
 
 export type TrendingScore = {
   post: string;
-  score: number;
+  baseScore: number;
+  trustAdjustedScore: number;
   blesses: number;
   retrns: number;
   boostTRN: number;
@@ -59,10 +61,21 @@ export async function generateTrendingScores(): Promise<TrendingScore[]> {
       boostTRN += baseTRN;
     }
 
-    scores.push({ post: hash, score, blesses, retrns, boostTRN });
+    const post = await fetchPost(hash);
+    const authorWeight = getTrustWeight(post.author);
+    const trustAdjustedScore = score * authorWeight;
+
+    scores.push({
+      post: hash,
+      baseScore: score,
+      trustAdjustedScore,
+      blesses,
+      retrns,
+      boostTRN,
+    });
   }
 
-  scores.sort((a, b) => b.score - a.score);
+  scores.sort((a, b) => b.trustAdjustedScore - a.trustAdjustedScore);
   writeFileSync("indexer/output/trending.json", JSON.stringify(scores, null, 2));
   console.log("✅ Trending index updated.");
   return scores;
