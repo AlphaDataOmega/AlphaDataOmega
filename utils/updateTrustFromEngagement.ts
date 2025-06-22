@@ -1,9 +1,18 @@
 import { getEngagementMetrics } from './metrics';
 import { getModerationOutcome } from './moderation';
 import { trustScoreMap } from './trustState';
+import { getTrustScore } from './trust';
 
-export async function updateTrustScoreFromEngagement(author: string, postHash: string): Promise<void> {
-  const trust = trustScoreMap[author.toLowerCase()] || 50;
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+export async function updateTrustScoreFromEngagement(
+  author: string,
+  post: { category: string },
+  postHash: string,
+): Promise<void> {
+  const trust = getTrustScore(author, post.category);
 
   const metrics = await getEngagementMetrics(postHash);
   const modResult = await getModerationOutcome(postHash);
@@ -22,8 +31,10 @@ export async function updateTrustScoreFromEngagement(author: string, postHash: s
   // \uD83E\uDDEA Experimental bonus: retrn performance
   if (metrics.retrnBlessRatio > 1.5) delta += 1;
 
-  const newScore = Math.max(0, Math.min(100, trust + delta));
-  trustScoreMap[author.toLowerCase()] = newScore;
+  const newScore = clamp(trust + delta, 0, 100);
+
+  if (!trustScoreMap[author.toLowerCase()]) trustScoreMap[author.toLowerCase()] = {};
+  trustScoreMap[author.toLowerCase()][post.category] = newScore;
 
   console.log(`\uD83D\uDD01 Trust updated for ${author}: ${trust} \u2192 ${newScore}`);
 }
