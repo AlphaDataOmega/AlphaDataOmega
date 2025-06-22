@@ -77,6 +77,11 @@ export default function ExplorePage() {
               showReplies={false}
               viewerAddr={viewerAddr || ""}
             />
+            {p.earnings > 0 && (
+              <span className="text-green-600 text-xs ml-2">
+                💸 {p.earnings.toFixed(2)} TRN
+              </span>
+            )}
 
             <CreateRetrn
               parentHash={p.hash}
