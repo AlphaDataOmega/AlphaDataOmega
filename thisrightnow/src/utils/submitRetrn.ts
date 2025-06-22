@@ -16,7 +16,7 @@ export async function submitRetrn(originalHash: string, content: string, tags: s
 
   // Also record this retrn in the view index so it can earn TRN
   const viewIndex = await loadContract("ViewIndex", ViewIndexABI);
-  await (viewIndex as any).logView(ipfsHash);
+  await (viewIndex as any).registerPost(ipfsHash);
 
   return ipfsHash;
 }

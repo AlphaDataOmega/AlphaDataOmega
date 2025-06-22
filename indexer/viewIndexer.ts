@@ -10,18 +10,25 @@ const views: {
   [day: string]: { postHash: string; viewer: string; timestamp: number }[];
 } = {};
 
-contract.on("ViewLogged", (viewer: string, postHash: string, timestamp: ethers.BigNumberish) => {
-  const day = new Date(Number(timestamp) * 1000).toISOString().split("T")[0];
+contract.on(
+  "ViewLogged",
+  async (postHash: string, viewer: string, event: ethers.EventLog) => {
+    const block = await event.getBlock();
+    const timestamp = block.timestamp;
+    const day = new Date(Number(timestamp) * 1000)
+      .toISOString()
+      .split("T")[0];
 
-  if (!views[day]) views[day] = [];
-  views[day].push({
-    postHash,
-    viewer,
-    timestamp: Number(timestamp),
-  });
+    if (!views[day]) views[day] = [];
+    views[day].push({
+      postHash,
+      viewer,
+      timestamp: Number(timestamp),
+    });
 
-  console.log(`[${day}] View recorded for post ${postHash} by ${viewer}`);
-});
+    console.log(`[${day}] View recorded for post ${postHash} by ${viewer}`);
+  }
+);
 
 // Optionally dump raw + deduped view data
 setInterval(() => {

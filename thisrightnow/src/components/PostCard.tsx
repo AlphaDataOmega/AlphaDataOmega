@@ -52,7 +52,7 @@ export default function PostCard({
             onRetrn={(r) => setRetrns([r, ...retrns])}
           />
           <div className="ml-4 mt-4 border-l-2 pl-4 space-y-3">
-            {retrns.map((r, i) => (
+            {retrns.map((r) => (
               <PostCard key={r.hash} ipfsHash={r.hash} post={r} showReplies={false} />
             ))}
           </div>
