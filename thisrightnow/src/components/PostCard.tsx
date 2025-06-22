@@ -4,6 +4,7 @@ import { loadContract } from "@/utils/contract";
 import RetrnIndexABI from "@/abi/RetrnIndex.json";
 import { getPostEarnings } from "@/utils/getPostEarnings";
 import CreateRetrn from "./CreateRetrn";
+import { useTrustScore } from "@/hooks/useTrustScore";
 
 export default function PostCard({
   ipfsHash,
@@ -19,6 +20,8 @@ export default function PostCard({
   const [data, setData] = useState(post || null);
   const [retrns, setRetrns] = useState<any[]>([]);
   const [earnings, setEarnings] = useState<number | null>(null);
+  const author = post?.author || data?.author;
+  const trust = useTrustScore(author);
 
   useEffect(() => {
     if (!post) fetchPost(ipfsHash).then(setData).catch(console.error);
@@ -49,6 +52,22 @@ export default function PostCard({
 
   return (
     <div className="bg-white border rounded p-4 shadow-sm">
+      <div className="text-sm text-gray-600 mb-1">
+        <span>{author}</span>
+        {trust && (
+          <span
+            className={`ml-2 px-2 py-1 text-xs rounded font-bold ${
+              trust.score >= 80
+                ? "bg-green-200 text-green-800"
+                : trust.score >= 50
+                ? "bg-yellow-200 text-yellow-800"
+                : "bg-red-200 text-red-800"
+            }`}
+          >
+            Trust: {trust.score}
+          </span>
+        )}
+      </div>
       <p>{data.content}</p>
       <div className="text-xs text-gray-500 mt-2">
         {data.tags?.join(", ")} · {new Date(data.timestamp).toLocaleString()}
