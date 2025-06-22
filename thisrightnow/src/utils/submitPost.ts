@@ -10,7 +10,7 @@ export async function submitPost(content: string, tags: string[] = []) {
   });
 
   const contract = await loadContract("ViewIndex", ViewIndexABI);
-  await (contract as any).registerView(ipfsHash);
+  await (contract as any).logView(ipfsHash);
 
   return ipfsHash;
 }
