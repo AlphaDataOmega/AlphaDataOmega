@@ -7,7 +7,8 @@
     "retrns": 5,
     "boostTRN": 50,
     "resonance": 4.5,
-    "score": 85.32
+    "score": 85.32,
+    "category": "memes"
   },
   {
     "hash": "ipfs://bafkreighfakehash2",
@@ -17,6 +18,7 @@
     "retrns": 3,
     "boostTRN": 20,
     "resonance": 3.2,
-    "score": 60.25
+    "score": 60.25,
+    "category": "ai"
   }
 ]

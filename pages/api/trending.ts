@@ -4,6 +4,7 @@ import path from "path";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
+    const category = req.query.category?.toString().toLowerCase();
     const filePath = path.join(process.cwd(), "thisrightnow", "public", "trending.json");
 
     if (!fs.existsSync(filePath)) {
@@ -11,7 +12,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const raw = fs.readFileSync(filePath, "utf-8");
-    const data = JSON.parse(raw);
+    let data = JSON.parse(raw);
+
+    if (category) {
+      data = data.filter((p: any) => p.category?.toLowerCase() === category);
+    }
 
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate");
     res.status(200).json(data);
