@@ -1,0 +1,22 @@
+[
+  {
+    "hash": "ipfs://bafkreighfakehash1",
+    "content": "First trending post!",
+    "author": "0x123",
+    "timestamp": 1718928000,
+    "retrns": 5,
+    "boostTRN": 50,
+    "resonance": 4.5,
+    "score": 85.32
+  },
+  {
+    "hash": "ipfs://bafkreighfakehash2",
+    "content": "Second trending post!",
+    "author": "0xabc",
+    "timestamp": 1718931600,
+    "retrns": 3,
+    "boostTRN": 20,
+    "resonance": 3.2,
+    "score": 60.25
+  }
+]

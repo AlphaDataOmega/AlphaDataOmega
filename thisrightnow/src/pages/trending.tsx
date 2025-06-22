@@ -1,56 +1,16 @@
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
-import { formatEther } from "ethers";
-import { loadContract } from "@/utils/contract";
-import ViewIndexABI from "@/abi/ViewIndex.json";
-import RetrnIndexABI from "@/abi/RetrnIndex.json";
-import BoostingModuleABI from "@/abi/BoostingModule.json";
-import { fetchPost } from "@/utils/fetchPost";
 import PostCard from "@/components/PostCard";
-import { calcTrendingScore } from "@/utils/calcTrendingScore";
-import { getResonanceScore } from "@/utils/getResonanceScore";
+import { useAccount } from "wagmi";
 
 export default function TrendingPage() {
-  const { address: viewerAddr } = useAccount();
   const [posts, setPosts] = useState<any[]>([]);
+  const { address } = useAccount();
 
   useEffect(() => {
-    const load = async () => {
-      const viewIndex = await loadContract("ViewIndex", ViewIndexABI);
-      const hashes: string[] = await (viewIndex as any).getRecentPosts();
-
-      const retrnIndex = await loadContract("RetrnIndex", RetrnIndexABI);
-      const boostModule = await loadContract(
-        "BoostingModule",
-        BoostingModuleABI as any
-      );
-
-      const postsWithScores = await Promise.all(
-        hashes.map(async (hash) => {
-          const post = await fetchPost(hash);
-          const retrns: string[] = await (retrnIndex as any).getRetrns(hash);
-          const boostData = await (boostModule as any).getBoost(hash);
-          const boostTRN = boostData && boostData.amount
-            ? parseFloat(formatEther(boostData.amount))
-            : 0;
-          const resonance = await getResonanceScore(hash);
-
-          const score = calcTrendingScore({
-            retrns: retrns.length,
-            boostTRN,
-            resonance,
-            createdAt: post.timestamp,
-          });
-
-          return { ...post, hash, retrns, boostAmount: boostTRN, resonance, score };
-        })
-      );
-
-      postsWithScores.sort((a, b) => b.score - a.score);
-      setPosts(postsWithScores);
-    };
-
-    load();
+    fetch("/trending.json")
+      .then((res) => res.json())
+      .then(setPosts)
+      .catch(console.error);
   }, []);
 
   return (
@@ -64,7 +24,7 @@ export default function TrendingPage() {
               <span># {i + 1}</span>
               <span>🔥 Score: {p.score.toFixed(2)}</span>
             </div>
-            <PostCard ipfsHash={p.hash} post={p} viewerAddr={viewerAddr || ""} />
+            <PostCard ipfsHash={p.hash} post={p} viewerAddr={address} />
           </div>
         ))}
       </div>
