@@ -64,7 +64,9 @@ export default function BranchPage() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">🌳 Retrn Thread</h1>
-      {rootPost && <PostCard ipfsHash={rootPost.hash} post={rootPost} />}
+      {rootPost && (
+        <PostCard ipfsHash={rootPost.hash} post={rootPost} showReplies={true} />
+      )}
       {hash && <RecursiveRetrnTree parentHash={hash as string} />}
     </div>
   );
