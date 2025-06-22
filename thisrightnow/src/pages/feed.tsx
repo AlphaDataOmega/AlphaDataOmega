@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 import { loadContract } from "@/utils/contract";
 import ViewIndexABI from "@/abi/ViewIndex.json";
 import RetrnIndexABI from "@/abi/RetrnIndex.json";
@@ -8,6 +9,7 @@ import Link from "next/link";
 import FeedReply from "@/components/FeedReply";
 
 export default function FeedPage() {
+  const { address: viewerAddr } = useAccount();
   const [posts, setPosts] = useState<any[]>([]);
 
   useEffect(() => {
@@ -38,7 +40,12 @@ export default function FeedPage() {
       <div className="space-y-8">
         {posts.map((p) => (
           <div key={p.hash} className="bg-white rounded shadow p-4">
-            <PostCard ipfsHash={p.hash} post={p} showReplies={false} />
+            <PostCard
+              ipfsHash={p.hash}
+              post={p}
+              showReplies={false}
+              viewerAddr={viewerAddr || ""}
+            />
 
             <div className="ml-4 mt-2 text-sm text-gray-600">
               {p.retrns.length > 0 && (

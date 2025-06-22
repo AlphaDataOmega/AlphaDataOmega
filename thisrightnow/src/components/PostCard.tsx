@@ -2,23 +2,32 @@ import { useEffect, useState } from "react";
 import { fetchPost } from "@/utils/fetchPost";
 import { loadContract } from "@/utils/contract";
 import RetrnIndexABI from "@/abi/RetrnIndex.json";
+import { getPostEarnings } from "@/utils/getPostEarnings";
 import CreateRetrn from "./CreateRetrn";
 
 export default function PostCard({
   ipfsHash,
   post,
   showReplies = false,
+  viewerAddr,
 }: {
   ipfsHash: string;
   post?: any;
   showReplies?: boolean;
+  viewerAddr?: string;
 }) {
   const [data, setData] = useState(post || null);
   const [retrns, setRetrns] = useState<any[]>([]);
+  const [earnings, setEarnings] = useState<number | null>(null);
 
   useEffect(() => {
     if (!post) fetchPost(ipfsHash).then(setData).catch(console.error);
   }, [ipfsHash, post]);
+
+  useEffect(() => {
+    if (!viewerAddr) return;
+    getPostEarnings(ipfsHash, viewerAddr).then(setEarnings);
+  }, [ipfsHash, viewerAddr]);
 
   useEffect(() => {
     if (!showReplies || !ipfsHash) return;
@@ -45,6 +54,12 @@ export default function PostCard({
         {data.tags?.join(", ")} · {new Date(data.timestamp).toLocaleString()}
       </div>
 
+      {earnings !== null && (
+        <p className="text-green-600 text-sm mt-1">
+          💸 Earned You: {earnings.toFixed(2)} TRN
+        </p>
+      )}
+
       {showReplies && (
         <>
           <CreateRetrn
@@ -53,7 +68,13 @@ export default function PostCard({
           />
           <div className="ml-4 mt-4 border-l-2 pl-4 space-y-3">
             {retrns.map((r) => (
-              <PostCard key={r.hash} ipfsHash={r.hash} post={r} showReplies={false} />
+              <PostCard
+                key={r.hash}
+                ipfsHash={r.hash}
+                post={r}
+                showReplies={false}
+                viewerAddr={viewerAddr}
+              />
             ))}
           </div>
         </>

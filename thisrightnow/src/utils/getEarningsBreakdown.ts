@@ -1,4 +1,4 @@
-export async function getEarningsBreakdown(address: string) {
+export async function getEarningsBreakdown() {
   // Stub: replace with actual contract reads or off-chain indexer call
   return {
     views: "17.420",
