@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { getClaimEvents, ClaimEvent } from "@/utils/getClaimEvents";
+import { getEarningsBreakdown } from "@/utils/getEarningsBreakdown";
 
 type Claim = ClaimEvent;
 
 export default function ClaimHistory({ address }: { address: string }) {
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [earnings, setEarnings] = useState({
+    views: "0",
+    retrns: "0",
+    boosts: "0",
+  });
 
   useEffect(() => {
     if (!address) return;
     getClaimEvents(address).then(setClaims);
+    getEarningsBreakdown(address).then(setEarnings);
   }, [address]);
 
   return (
@@ -35,9 +42,9 @@ export default function ClaimHistory({ address }: { address: string }) {
               <td className="p-2 border">
                 <a
                   href={`https://explorer.zora.energy/tx/${c.tx}`}
-                  className="text-blue-600"
                   target="_blank"
                   rel="noreferrer"
+                  className="text-blue-600 hover:underline"
                 >
                   View
                 </a>
@@ -50,6 +57,15 @@ export default function ClaimHistory({ address }: { address: string }) {
       {claims.length === 0 && (
         <p className="mt-4 text-center text-gray-500">No claims yet.</p>
       )}
+
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-2">📊 Earnings Breakdown</h2>
+        <ul className="text-sm space-y-1">
+          <li>📺 From Views: {earnings.views} TRN</li>
+          <li>🔁 From Retrns: {earnings.retrns} TRN</li>
+          <li>🚀 From Boosts: {earnings.boosts} TRN</li>
+        </ul>
+      </div>
     </div>
   );
 }

@@ -31,18 +31,16 @@ export async function getClaimEvents(address: string): Promise<ClaimEvent[]> {
   ]);
 
   const parse = async (logs: any[], type: ClaimEvent["type"]) => {
-    return Promise.all(
-      logs
-        .filter(filterUser)
-        .map(async (e: any) => {
-          const block = await provider.getBlock(e.blockNumber);
-          return {
-            type,
-            amount: formatEther(e.args.amount),
-            timestamp: Number(block.timestamp) * 1000,
-            tx: e.transactionHash,
-          } as ClaimEvent;
-        })
+    return await Promise.all(
+      logs.filter(filterUser).map(async (e: any) => {
+        const block = await provider.getBlock(e.blockNumber);
+        return {
+          type,
+          amount: formatEther(e.args.amount),
+          timestamp: (block.timestamp as number) * 1000,
+          tx: e.transactionHash,
+        } as ClaimEvent;
+      })
     );
   };
 
