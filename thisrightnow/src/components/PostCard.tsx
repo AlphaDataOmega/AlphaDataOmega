@@ -1,20 +1,29 @@
 import { useEffect, useState } from "react";
 import { fetchPost } from "@/utils/fetchPost";
 
-export default function PostCard({ ipfsHash }: { ipfsHash: string }) {
-  const [post, setPost] = useState<any>(null);
+export default function PostCard({
+  ipfsHash,
+  post,
+}: {
+  ipfsHash: string;
+  post?: any;
+}) {
+  const [data, setData] = useState(post || null);
 
   useEffect(() => {
-    fetchPost(ipfsHash).then(setPost).catch(console.error);
-  }, [ipfsHash]);
+    if (!post) {
+      fetchPost(ipfsHash).then(setData).catch(console.error);
+    }
+  }, [ipfsHash, post]);
 
-  if (!post) return <div className="p-4 bg-gray-100">Loading post...</div>;
+  if (!data)
+    return <div className="p-2 bg-gray-100">Loading...</div>;
 
   return (
-    <div className="p-4 bg-white shadow rounded my-2">
-      <p>{post.content}</p>
+    <div className="bg-white border rounded p-3 shadow-sm">
+      <p>{data.content}</p>
       <div className="text-xs text-gray-500 mt-2">
-        {post.tags?.join(", ")} · {new Date(post.timestamp).toLocaleString()}
+        {data.tags?.join(", ")} · {new Date(data.timestamp).toLocaleString()}
       </div>
     </div>
   );
