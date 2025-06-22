@@ -21,7 +21,7 @@ export default function PostCard({
   const [retrns, setRetrns] = useState<any[]>([]);
   const [earnings, setEarnings] = useState<number | null>(null);
   const author = post?.author || data?.author;
-  const trust = useTrustScore(author);
+  const trust = useTrustScore(post?.author);
 
   useEffect(() => {
     if (!post) fetchPost(ipfsHash).then(setData).catch(console.error);
@@ -52,8 +52,8 @@ export default function PostCard({
 
   return (
     <div className="bg-white border rounded p-4 shadow-sm">
-      <div className="text-sm text-gray-600 mb-1">
-        <span>{author}</span>
+      <span className="text-sm text-gray-600">
+        {author?.slice(0, 8)}...
         {trust && (
           <span
             className={`ml-2 px-2 py-1 text-xs rounded font-bold ${
@@ -67,7 +67,16 @@ export default function PostCard({
             Trust: {trust.score}
           </span>
         )}
-      </div>
+      </span>
+      {trust && (
+        <div className="text-xs text-gray-500 mt-1">
+          {trust.score >= 80
+            ? "Trusted Contributor"
+            : trust.score >= 50
+            ? "Neutral Contributor"
+            : "Low Trust Score"}
+        </div>
+      )}
       <p>{data.content}</p>
       <div className="text-xs text-gray-500 mt-2">
         {data.tags?.join(", ")} · {new Date(data.timestamp).toLocaleString()}
