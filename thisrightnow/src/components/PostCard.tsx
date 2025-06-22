@@ -4,7 +4,7 @@ import { loadContract } from "@/utils/contract";
 import RetrnIndexABI from "@/abi/RetrnIndex.json";
 import { getPostEarnings } from "@/utils/getPostEarnings";
 import CreateRetrn from "./CreateRetrn";
-import { useTrustScore } from "@/hooks/useTrustScore";
+import { getTrustScore } from "@/utils/trust";
 
 export default function PostCard({
   ipfsHash,
@@ -20,11 +20,19 @@ export default function PostCard({
   const [data, setData] = useState(post || null);
   const [retrns, setRetrns] = useState<any[]>([]);
   const [earnings, setEarnings] = useState<number | null>(null);
-  const trust = useTrustScore(post.author);
+  const [trustScore, setTrustScore] = useState<number | null>(null);
 
   useEffect(() => {
     if (!post) fetchPost(ipfsHash).then(setData).catch(console.error);
   }, [ipfsHash, post]);
+
+  useEffect(() => {
+    if (post?.author) {
+      getTrustScore(post.author)
+        .then(setTrustScore)
+        .catch(() => setTrustScore(null));
+    }
+  }, [post?.author]);
 
   useEffect(() => {
     if (!viewerAddr) return;
@@ -54,17 +62,17 @@ export default function PostCard({
       <div className="text-sm text-gray-600 flex items-center space-x-2">
         <span className="font-mono">{post.author}</span>
 
-        {trust && (
+        {trustScore !== null && (
           <span
-            className={`px-2 py-0.5 text-xs rounded font-bold ${
-              trust.score >= 80
+            className={`ml-2 px-2 py-0.5 rounded text-xs font-semibold ${
+              trustScore >= 90
                 ? "bg-green-200 text-green-800"
-                : trust.score >= 50
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-red-100 text-red-600"
+                : trustScore >= 70
+                ? "bg-yellow-200 text-yellow-800"
+                : "bg-red-200 text-red-800"
             }`}
           >
-            Trust: {trust.score}
+            Trust: {trustScore}%
           </span>
         )}
       </div>
