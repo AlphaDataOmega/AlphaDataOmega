@@ -1,9 +1,25 @@
-import { NFTStorage } from "nft.storage";
+import { create } from "ipfs-http-client";
 
-const client = new NFTStorage({ token: process.env.NFT_STORAGE_KEY! });
+// Replace with your actual gateway or env var
+const projectId = process.env.IPFS_PROJECT_ID;
+const projectSecret = process.env.IPFS_PROJECT_SECRET;
+const auth =
+  "Basic " + Buffer.from(projectId + ":" + projectSecret).toString("base64");
 
+const ipfs = create({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  headers: {
+    authorization: auth,
+  },
+});
+
+/**
+ * Uploads JSON or stringified data to IPFS and returns the CID.
+ */
 export async function uploadToIPFS(data: any): Promise<string> {
-  const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-  const cid = await client.storeBlob(blob);
-  return `ipfs://${cid}`;
+  const content = typeof data === "string" ? data : JSON.stringify(data);
+  const { cid } = await ipfs.add(content);
+  return cid.toString();
 }
