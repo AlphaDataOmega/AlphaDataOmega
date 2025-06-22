@@ -3,7 +3,7 @@ import BlessBurnABI from "@/abi/BlessBurnTracker.json";
 import BoostingModuleABI from "@/abi/BoostingModule.json";
 import OracleABI from "@/abi/TRNUsageOracle.json";
 import { loadContract } from "./contract";
-import { applyTrustWeight } from "../../../shared/TrustWeightedOracle";
+import { applyTrustWeight } from "@/utils/TrustWeightedOracle";
 
 export async function blessPost(postHash: string) {
   const tracker = await loadContract("BlessBurnTracker", BlessBurnABI as any);
