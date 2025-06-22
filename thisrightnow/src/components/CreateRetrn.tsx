@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { submitRetrn } from "@/utils/submitRetrn";
 
-export default function CreateRetrn({ parentHash }: { parentHash: string }) {
+export default function CreateRetrn({
+  parentHash,
+  onRetrn,
+}: {
+  parentHash: string;
+  onRetrn?: (data: any) => void;
+}) {
   const [text, setText] = useState("");
   const [tags, setTags] = useState("");
 
@@ -21,9 +27,18 @@ export default function CreateRetrn({ parentHash }: { parentHash: string }) {
       .filter(Boolean);
 
     try {
-      await submitRetrn(parentHash, text, tagArr);
+      const hash = await submitRetrn(parentHash, text, tagArr);
       setText("");
       setTags("");
+      if (onRetrn) {
+        const data = {
+          content: text,
+          tags: tagArr,
+          timestamp: Date.now(),
+          hash,
+        };
+        onRetrn(data);
+      }
     } catch (err) {
       console.error(err);
       alert("Failed to submit retrn.");
