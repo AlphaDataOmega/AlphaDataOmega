@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ethers } from 'ethers';
 import ViewIndexABI from '../abi/ViewIndex.json';
 import BlessBurnTrackerABI from '../abi/BlessBurnTracker.json';
+import CreateRetrn from './CreateRetrn';
 
 interface Post {
   hash: string;
@@ -71,6 +72,7 @@ export default function PostCard({ post, user }: { post: Post; user: string }) {
         <button disabled={blessed} onClick={handleBless}>🙏 Bless</button>
         <button disabled={burned} onClick={handleBurn}>🔥 Burn</button>
       </div>
+      <CreateRetrn parentHash={post.hash} />
     </div>
   );
 }
