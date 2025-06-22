@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import merkle from "@/data/merkle-2025-06-18.json";
 import { readTRNEarnings } from "@/utils/readOracle";
 import EarningsBreakdown from "@/components/EarningsBreakdown";
+import ClaimHistory from "@/components/ClaimHistory";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -67,6 +68,7 @@ export default function AccountPage() {
       </div>
 
       <EarningsBreakdown address={addr as string} />
+      <ClaimHistory address={addr as string} />
     </div>
   );
 }
