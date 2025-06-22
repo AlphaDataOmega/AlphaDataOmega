@@ -44,7 +44,19 @@ AlphaDataOmega is a decentralized social protocol and economic system built to r
 
 1. Clone this repo
 2. Read the full [ado-dev-docs](https://alphas-personal-organization.gitbook.io/ado-dev-docs) technical breakdown
-3. Suggested first steps:
+3. Install dependencies in each package:
+
+   ```bash
+   cd ado-core && npm install
+   cd ../thisrightnow && npm install
+   ```
+
+4. Run tests and lint checks:
+   - From `ado-core/` run `npx hardhat test`
+   - Use `npx ts-node test/RetrnScoreEngine.test.ts` (or the provided npm script) for the standalone engine test
+   - From `thisrightnow/` run `npm run lint`
+
+5. Suggested first steps:
    - Review `contracts/ViewIndex.sol`
    - Build out basic post/feed UI in `frontend/`
    - Test Merkle drop logic from `indexer/` hooks
