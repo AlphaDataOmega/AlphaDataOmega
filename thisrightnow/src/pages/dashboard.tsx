@@ -10,7 +10,7 @@ export default function Dashboard() {
       await claimMerkle();
       await claimVaults();
       setStatus("✅ All claims successful!");
-    } catch (e) {
+    } catch {
       setStatus("❌ Claim failed. Try again.");
     }
     setTimeout(() => setStatus(null), 5000);
