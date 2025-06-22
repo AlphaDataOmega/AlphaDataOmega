@@ -14,7 +14,7 @@ export type TrendingScore = {
   boostTRN: number;
 };
 
-export async function generateTrendingScores() {
+export async function generateTrendingScores(): Promise<TrendingScore[]> {
   const viewIndex = await loadContract("ViewIndex", ViewIndexABI);
   const blessBurn = await loadContract("BlessBurnTracker", BlessBurnTrackerABI);
   const retrnIndex = await loadContract("RetrnIndex", RetrnIndexABI);
@@ -65,6 +65,7 @@ export async function generateTrendingScores() {
   scores.sort((a, b) => b.score - a.score);
   writeFileSync("indexer/output/trending.json", JSON.stringify(scores, null, 2));
   console.log("✅ Trending index updated.");
+  return scores;
 }
 
 if (require.main === module) {
