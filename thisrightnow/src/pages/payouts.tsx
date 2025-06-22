@@ -38,6 +38,7 @@ export default function PayoutsDashboard() {
           <li><a className="text-blue-600 underline" href="/vaults">Vault Split Flow</a></li>
           <li><a className="text-blue-600 underline" href="/merkle-preview">Merkle Drop</a></li>
           <li><a className="text-blue-600 underline" href="/analytics">Top Earners</a></li>
+          <li><a className="text-blue-600 underline" href="/simulator">Boost Simulator</a></li>
         </ul>
       </div>
     </div>
