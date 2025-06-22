@@ -44,6 +44,10 @@ export default function VaultInit({ onComplete }: { onComplete: () => void }) {
       iv: encrypted.iv,
     };
 
+    // temporarily store encrypted vault locally for dev until IPFS fetch is live
+    localStorage.setItem("ado.mock.encrypted", encrypted.encrypted);
+    localStorage.setItem("ado.mock.iv", encrypted.iv);
+
     const cid = await pinVaultToIPFS(payload);
 
     // Save metadata locally
