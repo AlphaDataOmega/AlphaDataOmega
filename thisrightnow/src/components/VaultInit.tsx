@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { encryptVault } from "@/utils/encryptVault";
+import { pinVaultToIPFS } from "@/utils/pinVaultToIPFS";
 
 const defaultKeys = [
   "Voice",
@@ -20,14 +22,32 @@ export default function VaultInit({ onComplete }: { onComplete: () => void }) {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (keys.length !== 7) {
       setError("You must initialize with exactly 7 keys.");
       return;
     }
 
-    // Simulate local vault setup (store in localStorage for now)
-    localStorage.setItem("ado.vault.keys", JSON.stringify(keys));
+    const passphrase = prompt(
+      "\ud83d\udd10 Set a secure Vault passphrase (keep this safe):"
+    );
+    if (!passphrase || passphrase.length < 6) {
+      setError("Passphrase too short.");
+      return;
+    }
+
+    const encrypted = await encryptVault(keys, passphrase);
+    const payload = {
+      address: (window as any).ethereum.selectedAddress || "anon",
+      createdAt: Date.now(),
+      encryptedVault: encrypted.encrypted,
+      iv: encrypted.iv,
+    };
+
+    const cid = await pinVaultToIPFS(payload);
+
+    // Save metadata locally
+    localStorage.setItem("ado.vault.cid", cid);
     localStorage.setItem("ado.vault.initialized", "true");
     setError("");
     onComplete();
