@@ -1,15 +1,52 @@
 [
   {
+    "anonymous": false,
     "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "postHash",
-        "type": "bytes32"
-      }
+      { "indexed": true, "internalType": "bytes32", "name": "postHash", "type": "bytes32" },
+      { "indexed": true, "internalType": "address", "name": "author", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
     ],
-    "name": "logView",
+    "name": "PostRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "bytes32", "name": "postHash", "type": "bytes32" },
+      { "indexed": true, "internalType": "address", "name": "viewer", "type": "address" }
+    ],
+    "name": "ViewLogged",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "postHash", "type": "bytes32" }
+    ],
+    "name": "registerPost",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "postHash", "type": "bytes32" }
+    ],
+    "name": "registerView",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "postHash", "type": "bytes32" }
+    ],
+    "name": "getPostMeta",
+    "outputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

@@ -2,20 +2,37 @@
 pragma solidity ^0.8.24;
 
 /// @title ViewIndex
-/// @notice Records unique content views per post, used for TRN airdrops and engagement rewards.
+/// @notice Registers posts and logs views for TRN rewards.
 contract ViewIndex {
-    event ViewLogged(address indexed viewer, bytes32 indexed postHash, uint256 timestamp);
+    /// @dev post hash => total views
+    mapping(bytes32 => uint256) public viewCounts;
 
-    mapping(bytes32 => mapping(address => bool)) public hasViewed;
+    /// @dev post hash => original author
+    mapping(bytes32 => address) public originalAuthor;
 
-    function logView(bytes32 postHash) external {
-        mapping(address => bool) storage viewers = hasViewed[postHash];
-        require(!viewers[msg.sender], "Already viewed");
-        viewers[msg.sender] = true;
-        emit ViewLogged(msg.sender, postHash, block.timestamp);
+    /// @dev post hash => first time seen
+    mapping(bytes32 => uint256) public firstSeen;
+
+    event PostRegistered(bytes32 indexed postHash, address indexed author, uint256 timestamp);
+    event ViewLogged(bytes32 indexed postHash, address indexed viewer);
+
+    /// @notice Called once to register a new post hash
+    function registerPost(bytes32 postHash) external {
+        require(originalAuthor[postHash] == address(0), "Already registered");
+        originalAuthor[postHash] = msg.sender;
+        firstSeen[postHash] = block.timestamp;
+
+        emit PostRegistered(postHash, msg.sender, block.timestamp);
     }
 
-    function hasUserViewed(bytes32 postHash, address viewer) external view returns (bool) {
-        return hasViewed[postHash][viewer];
+    /// @notice Log a view for a post
+    function registerView(bytes32 postHash) external {
+        viewCounts[postHash] += 1;
+        emit ViewLogged(postHash, msg.sender);
+    }
+
+    /// @notice Helper to fetch metadata
+    function getPostMeta(bytes32 postHash) external view returns (address, uint256, uint256) {
+        return (originalAuthor[postHash], firstSeen[postHash], viewCounts[postHash]);
     }
 }
