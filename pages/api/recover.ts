@@ -1,14 +1,24 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { ethers } from "ethers";
+import VaultRecoveryABI from "../../thisrightnow/src/abi/VaultRecovery.json";
 
-// Simulated structure for now — plug into actual contract call
 async function triggerVaultRecovery(shards: string[]): Promise<boolean> {
-  console.log("🔑 Attempting recovery with shards:", shards);
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const signer = new ethers.Wallet(
+    process.env.RECOVERY_PRIVATE_KEY as string,
+    provider
+  );
 
-  // Replace this with your actual smart contract call
-  const success = shards.length >= 4 && shards.every((s) => s.length > 10);
+  const contract = new ethers.Contract(
+    process.env.VAULT_RECOVERY_ADDRESS as string,
+    VaultRecoveryABI,
+    signer
+  );
 
-  // Imagine calling: VaultRecovery.recoverWithShards(shards)
-  return success;
+  const tx = await contract.submitRecovery(shards);
+  await tx.wait();
+
+  return true;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
