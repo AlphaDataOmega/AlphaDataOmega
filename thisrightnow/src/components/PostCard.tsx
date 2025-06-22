@@ -1,78 +1,21 @@
-import { useState } from 'react';
-import { ethers } from 'ethers';
-import ViewIndexABI from '../abi/ViewIndex.json';
-import BlessBurnTrackerABI from '../abi/BlessBurnTracker.json';
-import CreateRetrn from './CreateRetrn';
+import { useEffect, useState } from "react";
+import { fetchPost } from "@/utils/fetchPost";
 
-interface Post {
-  hash: string;
-  title: string;
-  content: string;
-}
+export default function PostCard({ ipfsHash }: { ipfsHash: string }) {
+  const [post, setPost] = useState<any>(null);
 
-const VIEW_INDEX_ADDR = '0xYourViewIndexAddress';
-const BLESS_BURN_ADDR = '0xYourBlessBurnAddress';
+  useEffect(() => {
+    fetchPost(ipfsHash).then(setPost).catch(console.error);
+  }, [ipfsHash]);
 
-export default function PostCard({ post, user }: { post: Post; user: string }) {
-  const [viewed, setViewed] = useState(false);
-  const [blessed, setBlessed] = useState(false);
-  const [burned, setBurned] = useState(false);
-
-  const handleView = async () => {
-    if (!user || viewed) return;
-    try {
-      const provider = new ethers.BrowserProvider(
-        (window as unknown as { ethereum?: ethers.Eip1193Provider }).ethereum!
-      );
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(VIEW_INDEX_ADDR, ViewIndexABI, signer);
-      await contract.logView(post.hash);
-      setViewed(true);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleBless = async () => {
-    if (!user || blessed) return;
-    try {
-      const provider = new ethers.BrowserProvider(
-        (window as unknown as { ethereum?: ethers.Eip1193Provider }).ethereum!
-      );
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(BLESS_BURN_ADDR, BlessBurnTrackerABI, signer);
-      await contract.blessPost(post.hash);
-      setBlessed(true);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleBurn = async () => {
-    if (!user || burned) return;
-    try {
-      const provider = new ethers.BrowserProvider(
-        (window as unknown as { ethereum?: ethers.Eip1193Provider }).ethereum!
-      );
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(BLESS_BURN_ADDR, BlessBurnTrackerABI, signer);
-      await contract.burnPost(post.hash);
-      setBurned(true);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  if (!post) return <div className="p-4 bg-gray-100">Loading post...</div>;
 
   return (
-    <div className="border p-4 mb-4">
-      <h2>{post.title}</h2>
+    <div className="p-4 bg-white shadow rounded my-2">
       <p>{post.content}</p>
-      <div className="mt-2">
-        <button disabled={viewed} onClick={handleView}>👁️ View</button>
-        <button disabled={blessed} onClick={handleBless}>🙏 Bless</button>
-        <button disabled={burned} onClick={handleBurn}>🔥 Burn</button>
+      <div className="text-xs text-gray-500 mt-2">
+        {post.tags?.join(", ")} · {new Date(post.timestamp).toLocaleString()}
       </div>
-      <CreateRetrn parentHash={post.hash} />
     </div>
   );
 }
