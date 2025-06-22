@@ -3,7 +3,6 @@ import { loadContract } from "./contract";
 import { uploadToIPFS } from "./uploadToIPFS";
 import { applyTrustWeight } from "@/utils/TrustWeightedOracle";
 import { getSigner } from "./signer";
-import { ethers } from "ethers";
 
 export async function submitRetrn(
   content: string,
