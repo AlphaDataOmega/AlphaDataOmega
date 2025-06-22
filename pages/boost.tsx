@@ -1,38 +1,34 @@
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { boostPost } from "@/utils/boostPost";
-import { fetchTrustScore } from "@/utils/fetchTrustScore";
-import { applyTrustWeight } from "@/utils/TrustWeightedOracle";
+import { getTrustScore, getTrustWeight } from "@/utils/trust";
 
 export default function BoostPage() {
   const { address } = useAccount();
   const [ipfsHash, setIpfsHash] = useState("");
   const [baseTRN, setBaseTRN] = useState(1);
+  const [category, setCategory] = useState("art");
+  const [baseReach, setBaseReach] = useState(100);
   const [trust, setTrust] = useState<number | null>(null);
   const [weightedTRN, setWeightedTRN] = useState<number | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const userAddress = address || "";
+
+  useEffect(() => {
+    setBaseReach(baseTRN * 30);
+  }, [baseTRN]);
 
   useEffect(() => {
     if (!address) return;
-    fetchTrustScore(address).then(setTrust);
-  }, [address]);
+    const score = getTrustScore(address, category);
+    setTrust(score);
+  }, [address, category]);
 
   useEffect(() => {
-    if (trust !== null) {
-      const scaled =
-        baseTRN *
-        (trust >= 90
-          ? 1.25
-          : trust >= 75
-          ? 1.1
-          : trust >= 50
-          ? 1.0
-          : trust >= 30
-          ? 0.6
-          : 0.3);
-      setWeightedTRN(parseFloat(scaled.toFixed(2)));
-    }
-  }, [baseTRN, trust]);
+    if (!address) return;
+    const weight = getTrustWeight(address, category);
+    setWeightedTRN(parseFloat((baseTRN * weight).toFixed(2)));
+  }, [baseTRN, address, category]);
 
   const handleBoost = async () => {
     const tx = await boostPost(ipfsHash, baseTRN);
@@ -59,6 +55,24 @@ export default function BoostPage() {
         step={0.1}
         className="w-full border p-2 rounded"
       />
+
+      <p className="text-sm text-gray-700">
+        Trust Score in <b>{category}</b>:{" "}
+        <span className="text-blue-600">
+          {getTrustScore(userAddress, category)}
+        </span>{" "}
+        → Multiplier:{" "}
+        <span className="text-green-600">
+          x{getTrustWeight(userAddress, category).toFixed(2)}
+        </span>
+      </p>
+
+      <p className="mt-2 text-sm text-gray-800">
+        📈 Estimated Reach:{" "}
+        <span className="font-bold">
+          {(baseReach * getTrustWeight(userAddress, category)).toFixed(0)} views
+        </span>
+      </p>
 
       {trust !== null && (
         <div className="text-sm text-gray-700">
