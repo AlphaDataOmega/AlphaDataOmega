@@ -1,11 +1,15 @@
 import { buildRetrnTree, calcResonanceScore } from "./RetrnScoreEngine";
+import { fetchPost } from "./utils/fetchPost";
+import { applyTrustWeight } from "../shared/TrustWeightedOracle";
 
 export type PostCandidate = { hash: string; views: number };
 
 export async function getEntryWeight(postHash: string, viewCount: number) {
   const tree = await buildRetrnTree(postHash);
   const resonance = calcResonanceScore(tree);
-  return viewCount * (1 + resonance / 100);
+  const post = await fetchPost(postHash);
+  const weightedViews = await applyTrustWeight(post.author, viewCount);
+  return weightedViews * (1 + resonance / 100);
 }
 
 export function selectWeightedRandom(
