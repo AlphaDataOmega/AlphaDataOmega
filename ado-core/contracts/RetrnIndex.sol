@@ -5,16 +5,18 @@ pragma solidity ^0.8.24;
 /// @notice Tracks when a user shares or retrns an existing post. Enables attribution to original posts.
 
 contract RetrnIndex {
-    event RetrnLogged(address indexed retrner, bytes32 indexed retrnHash, bytes32 indexed originalPostHash, uint256 timestamp);
+    event RetrnLogged(address indexed retrner, bytes32 indexed retrnHash, bytes32 indexed originalPostHash, uint256 weightedTRN, uint256 timestamp);
 
     mapping(bytes32 => bytes32) public retrnToOriginal;
     mapping(bytes32 => uint256) public retrnCount;
+    mapping(bytes32 => uint256) public retrnWeight;
 
-    function logRetrn(bytes32 retrnHash, bytes32 originalPostHash) external {
+    function registerRetrn(bytes32 originalPostHash, bytes32 retrnHash, uint256 weightedTRN) external {
         require(retrnToOriginal[retrnHash] == 0, "Retrn already logged");
         retrnToOriginal[retrnHash] = originalPostHash;
         retrnCount[originalPostHash]++;
-        emit RetrnLogged(msg.sender, retrnHash, originalPostHash, block.timestamp);
+        retrnWeight[retrnHash] = weightedTRN;
+        emit RetrnLogged(msg.sender, retrnHash, originalPostHash, weightedTRN, block.timestamp);
     }
 
     function getRetrnCount(bytes32 postHash) external view returns (uint256) {
@@ -25,3 +27,4 @@ contract RetrnIndex {
         return retrnToOriginal[retrnHash];
     }
 }
+

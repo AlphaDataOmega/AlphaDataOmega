@@ -23,6 +23,12 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "weightedTRN",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "timestamp",
         "type": "uint256"
       }
@@ -72,16 +78,21 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "retrnHash",
+        "name": "originalPostHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "originalPostHash",
+        "name": "retrnHash",
         "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "weightedTRN",
+        "type": "uint256"
       }
     ],
-    "name": "logRetrn",
+    "name": "registerRetrn",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -8,8 +8,8 @@ export async function getEntryWeight(postHash: string, viewCount: number) {
   const tree = await buildRetrnTree(postHash);
   const resonance = calcResonanceScore(tree);
   const post = await fetchPost(postHash);
-  const weightedViews = await applyTrustWeight(post.author, viewCount);
-  return weightedViews * (1 + resonance / 100);
+  const weightedScore = await applyTrustWeight(post.author, viewCount);
+  return weightedScore * (1 + resonance / 100);
 }
 
 export function selectWeightedRandom(
