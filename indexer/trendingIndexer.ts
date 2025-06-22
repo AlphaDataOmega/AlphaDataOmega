@@ -18,6 +18,9 @@ async function main() {
   const posts = await Promise.all(
     recentHashes.map(async (hash) => {
       const post = await fetchPost(hash);
+      const category = Array.isArray((post as any).tags) && (post as any).tags.length > 0
+        ? (post as any).tags[0]
+        : undefined;
       const retrns: string[] = await RetrnIndex.getRetrns(hash);
       const boostData = await BoostingModule.getBoost(hash);
       const boostTRN = boostData && boostData.amount ? Number(boostData.amount) / 1e18 : 0;
@@ -39,6 +42,7 @@ async function main() {
         boostTRN,
         resonance,
         score,
+        category,
       };
     })
   );
