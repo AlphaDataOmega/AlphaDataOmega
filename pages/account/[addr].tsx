@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 function TrustBadge({ category, score }: { category: string; score: number }) {
@@ -42,6 +43,12 @@ export default function AccountTrustPage() {
           <TrustBadge key={category} category={category} score={score as number} />
         ))}
       </div>
+      <Link
+        href={`/account/${addr}/trust`}
+        className="text-blue-600 underline text-sm mt-2 block"
+      >
+        View trust score history →
+      </Link>
     </div>
   );
 }
