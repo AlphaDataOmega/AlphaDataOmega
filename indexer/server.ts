@@ -1,6 +1,7 @@
 import express from "express";
 import { getPostEarningsFromChain } from "./postEarnings";
 import { getUserEarnings } from "./userEarnings";
+import { getPayoutSummary } from "./payoutSummary";
 
 const app = express();
 app.get("/api/earnings/post/:hash", async (req, res) => {
@@ -17,6 +18,10 @@ app.get("/api/earnings/user/:addr", async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: "Failed to get user earnings" });
   }
+});
+
+app.get("/api/payouts", (req, res) => {
+  res.json(getPayoutSummary());
 });
 
 app.listen(4000, () => console.log("\ud83d\dd0c Earnings API at http://localhost:4000"));
