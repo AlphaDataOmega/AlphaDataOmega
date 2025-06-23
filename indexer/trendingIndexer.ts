@@ -1,90 +1,44 @@
-import { writeFileSync } from "fs";
-import { loadContract } from "./contract";
-import ViewIndexABI from "./abis/ViewIndex.json";
-import BlessBurnTrackerABI from "./abis/BlessBurnTracker.json";
-import BoostingModuleABI from "./abis/BoostingModule.json";
 import RetrnIndexABI from "./abis/RetrnIndex.json";
-import { applyTrustWeight, getTrustWeight } from "../shared/TrustWeightedOracle";
-import { fetchPost } from "./utils/fetchPost";
+import RetrnWeightOracleABI from "./abis/RetrnWeightOracle.json";
+import { loadContract } from "./contract";
+import fs from "fs";
 
-export type TrendingScore = {
-  post: string;
-  baseScore: number;
-  trustAdjustedScore: number;
-  blesses: number;
-  retrns: number;
-  boostTRN: number;
+export type TrendingPost = {
+  hash: string;
+  score: number;
 };
 
-export async function generateTrendingScores(): Promise<TrendingScore[]> {
-  const viewIndex = await loadContract("ViewIndex", ViewIndexABI);
-  const blessBurn = await loadContract("BlessBurnTracker", BlessBurnTrackerABI);
+export async function generateTrendingScores(): Promise<TrendingPost[]> {
   const retrnIndex = await loadContract("RetrnIndex", RetrnIndexABI);
-  const boosting = await loadContract("BoostingModule", BoostingModuleABI);
+  const weightOracle = await loadContract("RetrnWeightOracle", RetrnWeightOracleABI);
 
-  const recentPosts: string[] = await viewIndex.getRecentPosts();
+  const rootPosts: string[] = await retrnIndex.getTopLevelPosts();
+  const postScores: Record<string, number> = {};
 
-  const scores: TrendingScore[] = [];
-
-  for (const hash of recentPosts) {
-    const blessEvents = await blessBurn.queryFilter(
-      blessBurn.filters.Blessed(hash)
-    );
-    const retrnEvents = await retrnIndex.queryFilter(
-      retrnIndex.filters.Retrn(hash)
-    );
-    const boostEvents = await boosting.queryFilter(
-      boosting.filters.Boosted(hash)
-    );
-
+  for (const post of rootPosts) {
+    const retrns: string[] = await retrnIndex.getRetrns(post);
     let score = 0;
-    let blesses = 0;
-    let retrns = 0;
-    let boostTRN = 0;
 
-    for (const e of blessEvents) {
-      const trustTRN = await applyTrustWeight(e.args.user, 1);
-      score += trustTRN;
-      blesses++;
+    for (const r of retrns) {
+      const [, adjusted] = await weightOracle.getRetrnScore(r).catch(() => [0, 0]);
+      score += Number(adjusted);
     }
 
-    for (const e of retrnEvents) {
-      const trustTRN = await applyTrustWeight(e.args.user, 2);
-      score += trustTRN;
-      retrns++;
-    }
-
-    for (const e of boostEvents) {
-      const baseTRN = parseFloat(e.args.amount.toString());
-      const trustTRN = await applyTrustWeight(e.args.user, baseTRN * 3);
-      score += trustTRN;
-      boostTRN += baseTRN;
-    }
-
-    const post = await fetchPost(hash);
-    const authorWeight = getTrustWeight(post.author);
-    const trustAdjustedScore = score * authorWeight;
-
-    scores.push({
-      post: hash,
-      baseScore: score,
-      trustAdjustedScore,
-      blesses,
-      retrns,
-      boostTRN,
-    });
+    postScores[post] = score;
   }
 
-  scores.sort((a, b) => b.trustAdjustedScore - a.trustAdjustedScore);
-  writeFileSync("indexer/output/trending.json", JSON.stringify(scores, null, 2));
-  console.log("✅ Trending index updated.");
-  return scores;
+  const sorted = Object.entries(postScores)
+    .sort((a, b) => b[1] - a[1])
+    .map(([hash, score]) => ({ hash, score }));
+
+  fs.writeFileSync("indexer/output/trending.json", JSON.stringify(sorted, null, 2));
+  console.log("✅ Trending scores updated");
+  return sorted;
 }
 
 if (require.main === module) {
   generateTrendingScores().catch((err) => {
-    console.error("❌ Error generating trending scores:", err);
+    console.error("❌ Error updating trending scores:", err);
     process.exit(1);
   });
 }
-
