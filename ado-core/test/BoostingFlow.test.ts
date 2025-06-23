@@ -44,6 +44,23 @@ describe("Boosting Flow", function () {
     expect(claimable).to.be.gt(0);
   });
 
+  it("tracks claimable rewards per viewer", async () => {
+    const signers = await ethers.getSigners();
+    const viewer2 = signers[2];
+
+    await boosting.connect(user).startBoost(postHash, ethers.parseEther("5"));
+
+    await boosting.connect(viewer).registerBoostView(postHash);
+    await boosting.connect(viewer).registerBoostView(postHash);
+    await boosting.connect(viewer2).registerBoostView(postHash);
+
+    const c1 = await boosting.claimable(postHash, viewer.address);
+    const c2 = await boosting.claimable(postHash, viewer2.address);
+
+    expect(c1).to.equal(ethers.parseEther("2"));
+    expect(c2).to.equal(ethers.parseEther("1"));
+  });
+
   it("should allow refund of unspent boost funds if post is burned", async () => {
     await boosting.connect(user).startBoost(postHash, ethers.parseEther("20"));
 

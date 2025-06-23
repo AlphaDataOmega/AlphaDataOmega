@@ -18,3 +18,9 @@ export async function fetchPostFromIPFS(hash: string): Promise<any> {
 export async function loadModerationFlags(hash: string): Promise<FlagData> {
   return flagMap[hash] || { source: 'unknown', aiScore: 0, aiReason: 'n/a' };
 }
+
+const burnedPosts = new Set<string>(['QmBurnedExample...']);
+
+export async function isPostBurned(hash: string): Promise<boolean> {
+  return burnedPosts.has(hash);
+}
