@@ -16,6 +16,9 @@ contract TRNUsageOracle {
     mapping(address => uint256) public burnedTRN;
     mapping(address => uint256) public pendingDebt;
 
+    // Optional trust score storage used for testing vault weighting
+    mapping(address => mapping(bytes32 => uint256)) public trustScores;
+
     /// @notice Called when a user earns TRN (e.g. from a view or retrn)
     function reportEarning(address user, uint256 amount, bytes32 sourceHash) external {
         earnedTRN[user] += amount;
@@ -59,5 +62,21 @@ contract TRNUsageOracle {
         uint256 total = earnedTRN[user];
         uint256 used = spentTRN[user] + burnedTRN[user] + pendingDebt[user];
         return total > used ? total - used : 0;
+    }
+
+    /// @notice Set a trust score for a contributor in a specific category
+    function setTrustScore(address contributor, string calldata category, uint256 score) external {
+        trustScores[contributor][keccak256(bytes(category))] = score;
+    }
+
+    /// @notice Returns the trust score for a contributor
+    function getTrustScore(address contributor, string memory category) external view returns (uint256) {
+        return trustScores[contributor][keccak256(bytes(category))];
+    }
+
+    /// @notice Records earnings coming from off-chain calculations (e.g., vaults)
+    function notifyEarnings(address contributor, uint256 amount) external {
+        earnedTRN[contributor] += amount;
+        emit TRNEarned(contributor, amount, keccak256("vault-distribution"));
     }
 }

@@ -4,13 +4,16 @@ import { MerkleTree } from "merkletreejs";
 import keccak256 from "keccak256";
 
 describe("ClaimAll Flow", () => {
-  let oracle: any, drop: any, investorVault: any, contributorVault: any;
+  let oracle: any, drop: any, investorVault: any, contributorVault: any, token: any;
   let user: any, other: any;
 
   const scale = (n: number) => ethers.parseUnits(n.toString(), 18);
 
   beforeEach(async () => {
     [user, other] = await ethers.getSigners();
+
+    const Token = await ethers.getContractFactory("MockTRN");
+    token = await Token.deploy();
 
     const Oracle = await ethers.getContractFactory("TRNUsageOracle");
     oracle = await Oracle.deploy();
@@ -19,7 +22,7 @@ describe("ClaimAll Flow", () => {
     investorVault = await InvestorVault.deploy();
 
     const ContributorVault = await ethers.getContractFactory("MockContributorVault");
-    contributorVault = await ContributorVault.deploy();
+    contributorVault = await ContributorVault.deploy(token.target, oracle.target);
 
     const Drop = await ethers.getContractFactory("MerkleDropDistributor");
     drop = await Drop.deploy(oracle.target);
