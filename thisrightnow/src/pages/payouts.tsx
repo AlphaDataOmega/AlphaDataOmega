@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 
 export default function PayoutsDashboard() {
   const [data, setData] = useState<any>(null);
+  const [inflow, setInflow] = useState<any>(null);
 
   useEffect(() => {
     fetch("http://localhost:4000/api/payouts")
       .then((res) => res.json())
       .then(setData);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/dao/inflow")
+      .then((res) => res.json())
+      .then(setInflow);
   }, []);
 
   if (!data) return <p className="p-4">Loading DAO payout summary...</p>;
@@ -22,6 +29,13 @@ export default function PayoutsDashboard() {
         <p className="text-2xl">{totalRevenue.toFixed(2)} TRN</p>
         <p className="text-xs text-gray-600">Last split: {lastSplitDate}</p>
       </div>
+
+      {inflow && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+          <h3 className="text-red-800 font-bold">🔥 Slashing Inflow</h3>
+          <p>{Number(inflow.slashing || 0).toFixed(2)} BRN redirected to DAO</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         {Object.entries(breakdown).map(([label, value]) => (
