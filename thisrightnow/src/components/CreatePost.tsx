@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { submitPost } from "@/utils/submitPost";
+import { autoTagAndSubmit } from "@/utils/autoTagAndSubmit";
 
 export default function CreatePost({
   onPosted,
@@ -12,8 +12,8 @@ export default function CreatePost({
 
   const handleSubmit = async () => {
     setLoading(true);
-    const hash = await submitPost(text);
-    onPosted({ text, hash });
+    const { hash, category, earningsProjection } = await autoTagAndSubmit(text);
+    onPosted({ text, hash, category, earningsProjection });
     setText("");
     setLoading(false);
   };
