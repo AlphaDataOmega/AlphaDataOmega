@@ -6,6 +6,7 @@ import { getBoostEarnings } from './sources/boost';
 import { getVaultEarnings } from './sources/vaults';
 import { getLottoEarnings } from './sources/lotto';
 import { getSlashingInflow } from './sources/slashing';
+import { getSlashingByCountry } from './sources/slashingByCountry';
 
 function sum(obj: Record<string, number>): number {
   return Object.values(obj).reduce((a, b) => a + b, 0);
@@ -21,6 +22,7 @@ export async function aggregateInflow() {
   ]);
 
   const slashing = await getSlashingInflow();
+  const slashingByRegion = await getSlashingByCountry();
 
   return {
     view: sum(views),
@@ -29,5 +31,6 @@ export async function aggregateInflow() {
     vaults: sum(vaults),
     lotto: sum(lotto),
     slashing,
+    slashingByRegion,
   };
 }
