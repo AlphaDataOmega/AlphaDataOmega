@@ -1,5 +1,6 @@
 import { getLogsForEvent } from "@/utils/logs";
 import ViewIndexABI from "@/abi/ViewIndex.json";
+import { getTrustScore } from "../TrustScoreEngine";
 import { parseAbiItem } from "viem";
 
 const event = parseAbiItem(
@@ -19,10 +20,10 @@ export async function getViewEarnings(): Promise<Record<string, number>> {
   for (const log of logs) {
     const viewer = log.args.viewer as string;
 
-    // Trust-weighted: add your logic here if trust scores are available
-    const points = 1; // default value
+    const trust = await getTrustScore(viewer, "engagement.view"); // 0-100
+    const adjusted = (1 * trust) / 100;
 
-    earnings[viewer] = (earnings[viewer] || 0) + points;
+    earnings[viewer] = (earnings[viewer] || 0) + adjusted;
   }
 
   return earnings;
