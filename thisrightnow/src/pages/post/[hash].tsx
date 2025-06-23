@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import PostEarnings from "@/components/PostEarnings";
+import SlashHistory from "@/components/SlashHistory";
 
 export default function PostPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function PostPage() {
       <h1 className="text-2xl font-bold mb-4">Post {hash}</h1>
       {/* Post content would go here */}
       <PostEarnings postHash={hash as string} />
+      <SlashHistory hash={hash as string} />
       <div className="mt-4">
         <h2 className="font-semibold">🔁 Retrns</h2>
         {/* retrns list placeholder */}
