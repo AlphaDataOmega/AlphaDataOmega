@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import CreateAppeal from '@/components/CreateAppeal';
 
 export default function PostModerationPage() {
   const { query } = useRouter();
@@ -70,6 +71,10 @@ export default function PostModerationPage() {
             {data.appeal.result === 'success' ? '✅ Appeal upheld' : '❌ Appeal denied'} – Reason: {data.appeal.reason}
           </p>
         </>
+      )}
+
+      {!data.appeal && (
+        <CreateAppeal postHash={hash as string} onSubmitted={() => window.location.reload()} />
       )}
     </div>
   );

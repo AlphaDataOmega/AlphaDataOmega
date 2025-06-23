@@ -1,0 +1,22 @@
+[
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "postHash", "type": "bytes32" },
+      { "internalType": "string", "name": "cid", "type": "string" }
+    ],
+    "name": "submitAppeal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "bytes32", "name": "postHash", "type": "bytes32" },
+      { "indexed": true, "internalType": "address", "name": "submitter", "type": "address" },
+      { "indexed": false, "internalType": "string", "name": "cid", "type": "string" }
+    ],
+    "name": "AppealSubmitted",
+    "type": "event"
+  }
+]
