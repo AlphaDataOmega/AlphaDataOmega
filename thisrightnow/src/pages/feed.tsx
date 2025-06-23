@@ -1,16 +1,31 @@
 import { useTrending } from "@/utils/useTrending";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import FeedReply from "@/components/FeedReply";
 import PostCard from "@/components/PostCard";
+import CreatePost from "@/components/CreatePost";
 
 export default function FeedPage() {
   const router = useRouter();
   const selected = (router.query.category as string) || "all";
-  const { posts, isLoading } = useTrending(selected === "all" ? undefined : selected);
+  const { posts: trendingPosts, isLoading } = useTrending(
+    selected === "all" ? undefined : selected
+  );
+  const [posts, setPosts] = useState<any[]>(trendingPosts || []);
+
+  useEffect(() => {
+    setPosts(trendingPosts || []);
+  }, [trendingPosts]);
 
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">🌊 River of Retrns</h1>
+
+      <CreatePost
+        onPosted={(newPost) => {
+          setPosts([newPost, ...posts]);
+        }}
+      />
 
       <div className="flex gap-2 mb-4">
         {["all", "memes", "tech", "politics", "ai", "news"].map((cat) => (
