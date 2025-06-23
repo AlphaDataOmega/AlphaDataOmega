@@ -10,6 +10,11 @@ export function getTrustWeight(address: string, category: string): number {
   return score >= 90 ? 1.25 : score >= 70 ? 1.1 : 0.9;
 }
 
+export function getTrustMap(address: string): Record<string, number> {
+  const map = trustScoreMap[address.toLowerCase()] || {};
+  return { ...map, general: map.general ?? 50 };
+}
+
 export function setTrustScore(
   address: string,
   category: string,
