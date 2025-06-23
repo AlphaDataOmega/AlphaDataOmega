@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { MerkleTree } from "merkletreejs";
 import keccak256 from "keccak256";
+import { buildMerkleTree, getProof } from "../utils/merkleUtils";
 
 describe("MerkleClaim trust weighting", function () {
   let oracle: any;
@@ -99,6 +100,59 @@ describe("MerkleClaim trust weighting", function () {
       distributor
         .connect(lowTrust)
         .claim(1, claim.address, claim.amount + 1n, proofs[claim.address])
+    ).to.be.revertedWith("Invalid proof");
+  });
+});
+
+describe("MerkleDropDistributor – Lotto Trust Rewards", function () {
+  let oracle: any;
+  let distributor: any;
+  let winner: any;
+  let tree: any;
+  let root: string;
+
+  beforeEach(async () => {
+    const [deployer, user] = await ethers.getSigners();
+    winner = user;
+
+    const Oracle = await ethers.getContractFactory("TRNUsageOracle");
+    oracle = await Oracle.deploy();
+
+    const Distributor = await ethers.getContractFactory("MerkleDropDistributor");
+    distributor = await Distributor.deploy(oracle.target);
+
+    // Simulate Lotto-based winner with 85 TRN (e.g. 100 won, 85% trust)
+    const entries = [{ address: winner.address, amount: 85n }];
+    tree = buildMerkleTree(entries);
+    root = tree.getHexRoot();
+
+    await distributor.setMerkleRoot(root, 2);
+  });
+
+  it("allows a trust-weighted Lotto winner to claim", async () => {
+    const proof = getProof(tree, winner.address, 85n);
+
+    await distributor.connect(winner).claim(2, winner.address, 85, proof);
+
+    const balance = await oracle.earnedTRN(winner.address);
+    expect(balance).to.equal(85);
+  });
+
+  it("prevents double-claims", async () => {
+    const proof = getProof(tree, winner.address, 85n);
+
+    await distributor.connect(winner).claim(2, winner.address, 85, proof);
+
+    await expect(
+      distributor.connect(winner).claim(2, winner.address, 85, proof)
+    ).to.be.revertedWith("Already claimed");
+  });
+
+  it("fails with wrong amount or address", async () => {
+    const badProof = getProof(tree, winner.address, 85n);
+
+    await expect(
+      distributor.connect(winner).claim(2, winner.address, 100, badProof)
     ).to.be.revertedWith("Invalid proof");
   });
 });
