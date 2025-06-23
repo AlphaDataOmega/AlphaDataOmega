@@ -1,0 +1,197 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "retrnHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "parentHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "contributor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "rawScore",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "adjustedScore",
+        "type": "uint256"
+      }
+    ],
+    "name": "RetrnScored",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "retrnHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRetrnMeta",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "contributor",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "retrnHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRetrnScore",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "rawScore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adjustedScore",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "parentHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRetrnsByPost",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "retrnHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "parentHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "contributor",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rawScore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adjustedScore",
+        "type": "uint256"
+      }
+    ],
+    "name": "recordRetrnScore",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "retrns",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "rawScore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adjustedScore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "contributor",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "retrnsByPost",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
