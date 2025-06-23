@@ -1,6 +1,8 @@
 import { buildMerkleTree } from './buildMerkle';
 import { getDailyViews } from './viewIndexer';
 import { getVaultEarnings } from './vaultScanner';
+import { getLottoWinners } from './fetchLotto';
+import { applyTrustWeighting } from './applyTrustWeighting';
 import { buildRetrnTree, calcResonanceScore } from './RetrnScoreEngine';
 import fs from 'fs';
 
@@ -10,10 +12,11 @@ async function getResonanceBonusForPost(postHash: string) {
   return Math.floor(score); // 1 TRN per resonance point
 }
 
-async function calculateRewards() {
-  const viewData = await getDailyViews();
+async function calculateRewards(date: string) {
+  const viewData = await getDailyViews(date);
   const vaultData = await getVaultEarnings();
-  const rewards: Record<string, number> = {};
+  const lottoData = await getLottoWinners(date);
+  const viewLogs: { viewer: string; amount: number; category: string }[] = [];
 
   for (const [postHash, { viewers }] of Object.entries(viewData)) {
     const resonanceBonus = await getResonanceBonusForPost(postHash);
@@ -24,19 +27,31 @@ async function calculateRewards() {
     for (const [viewer, viewCount] of Object.entries(viewers)) {
       const base = viewCount; // 1 TRN per view
       const bonus = perViewerBonus;
-      rewards[viewer] = (rewards[viewer] || 0) + base + bonus;
+      viewLogs.push({ viewer, amount: base + bonus, category: 'general' });
     }
   }
-
-  for (const [addr, vaultAmount] of Object.entries(vaultData)) {
-    rewards[addr] = (rewards[addr] || 0) + vaultAmount;
+  const adjustedViews = await applyTrustWeighting(viewLogs);
+  const viewMap: Record<string, number> = {};
+  for (const entry of adjustedViews) {
+    if (!viewMap[entry.viewer]) viewMap[entry.viewer] = 0;
+    viewMap[entry.viewer] += entry.adjustedAmount;
   }
 
-  return rewards;
+  lottoData.forEach(({ addr, amount }) => {
+    if (!viewMap[addr]) viewMap[addr] = 0;
+    viewMap[addr] += amount;
+  });
+
+  for (const [addr, vaultAmount] of Object.entries(vaultData)) {
+    if (!viewMap[addr]) viewMap[addr] = 0;
+    viewMap[addr] += vaultAmount;
+  }
+
+  return viewMap;
 }
 
-export async function emitMerkleDrop() {
-  const rewards = await calculateRewards();
+export async function emitMerkleDrop(date = new Date().toISOString().split('T')[0]) {
+  const rewards = await calculateRewards(date);
 
   const entries = Object.entries(rewards).map(([addr, amount]) => ({
     address: addr,
@@ -45,13 +60,12 @@ export async function emitMerkleDrop() {
 
   const merkleData = buildMerkleTree(entries);
 
-  const today = new Date().toISOString().split('T')[0];
   fs.writeFileSync(
-    `./output/merkle-${today}.json`,
+    `./output/merkle-${date}.json`,
     JSON.stringify(merkleData, null, 2)
   );
   console.log(
-    `✅ Merkle drop created for ${today} with ${entries.length} entries.`
+    `✅ Merkle drop created for ${date} with ${entries.length} entries.`
   );
 }
 

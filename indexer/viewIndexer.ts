@@ -38,8 +38,8 @@ setInterval(() => {
   console.log(`✅ Wrote ${deduped.length} deduped views to views-${today}.json`);
 }, 60000);
 
-export function getDailyViews() {
-  const today = new Date().toISOString().split("T")[0];
+export function getDailyViews(date?: string) {
+  const today = date ?? new Date().toISOString().split("T")[0];
   try {
     const raw = fs.readFileSync(`./output/views-${today}.json`, "utf-8");
     const logs: { postHash: string; viewer: string; timestamp: number }[] = JSON.parse(raw);
