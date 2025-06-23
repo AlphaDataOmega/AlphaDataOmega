@@ -1,6 +1,7 @@
 import ModerationLogABI from '@/abi/ModerationLog.json';
 import { uploadToIPFS } from '@/utils/ipfs';
 import { loadContract } from '@/utils/contract';
+import { resolvePendingAppeal } from './moderationStore';
 
 export type ModerationOutcome = 'approved' | 'flagged' | 'removed';
 
@@ -19,4 +20,8 @@ export async function submitAppeal(postHash: string, reason: string) {
   await tx.wait();
 
   return ipfsHash;
+}
+
+export async function resolveAppeal(postHash: string, decision: 'approve' | 'reject') {
+  await resolvePendingAppeal(postHash, decision);
 }
