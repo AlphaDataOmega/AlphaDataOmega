@@ -4,7 +4,8 @@ import { loadContract } from "@/utils/contract";
 import RetrnIndexABI from "@/abi/RetrnIndex.json";
 import { getPostEarnings } from "@/utils/getPostEarnings";
 import CreateRetrn from "./CreateRetrn";
-import { getTrustScore } from "@/utils/trust";
+import { getTrustScore } from "@/utils/TrustScoreEngine";
+import Tooltip from "@/components/Tooltip";
 
 export default function PostCard({
   ipfsHash,
@@ -27,12 +28,18 @@ export default function PostCard({
   }, [ipfsHash, post]);
 
   useEffect(() => {
-    if (post?.author) {
-      getTrustScore(post.author)
-        .then(setTrustScore)
-        .catch(() => setTrustScore(null));
-    }
-  }, [post?.author]);
+    const loadTrust = async () => {
+      if (post?.category && post?.author) {
+        try {
+          const score = await getTrustScore(post.category, post.author);
+          setTrustScore(score);
+        } catch {
+          setTrustScore(null);
+        }
+      }
+    };
+    loadTrust();
+  }, [post?.category, post?.author]);
 
   useEffect(() => {
     if (!viewerAddr) return;
@@ -61,19 +68,26 @@ export default function PostCard({
     <div className="bg-white border rounded p-4 shadow-sm">
       <div className="text-sm text-gray-600 flex items-center space-x-2">
         <span className="font-mono">{post.author}</span>
+      </div>
+      <div className="flex items-center gap-3 mt-2 text-sm text-gray-600">
+        {post.category && (
+          <Tooltip content={`Tagged as ${post.category}`}>
+            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs">
+              🏷 {post.category}
+            </span>
+          </Tooltip>
+        )}
 
         {trustScore !== null && (
-          <span
-            className={`ml-2 px-2 py-0.5 rounded text-xs font-semibold ${
-              trustScore >= 90
-                ? "bg-green-200 text-green-800"
-                : trustScore >= 70
-                ? "bg-yellow-200 text-yellow-800"
-                : "bg-red-200 text-red-800"
-            }`}
+          <Tooltip
+            content={`Trust in ${post.category}: ${trustScore} → earnings x${(
+              1 + trustScore / 100
+            ).toFixed(2)}`}
           >
-            Trust: {trustScore}%
-          </span>
+            <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">
+              💎 Trust: {trustScore}
+            </span>
+          </Tooltip>
         )}
       </div>
       <p>{data.content}</p>
