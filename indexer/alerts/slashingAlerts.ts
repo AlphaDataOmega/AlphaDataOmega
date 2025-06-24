@@ -1,6 +1,8 @@
 import { getSlashingByCountryAndCategory } from "../sources/slashingByCountryAndCategory";
+import SlashingPolicyABI from "@/abi/SlashingPolicyManager.json";
+import { loadContract } from "@/utils/contract";
 
-// Define your burn thresholds per category (customizable later by DAO)
+// Legacy static thresholds
 const CATEGORY_THRESHOLDS: Record<string, number> = {
   politics: 500,
   religion: 400,
@@ -19,6 +21,24 @@ export async function getSlashingAlerts(): Promise<
       const threshold = CATEGORY_THRESHOLDS[category];
       if (threshold && brn >= threshold) {
         alerts.push({ country, category, brn, threshold });
+      }
+    }
+  }
+
+  return alerts;
+}
+
+export async function getSlashingAlertsFromContract() {
+  const contract = await loadContract("SlashingPolicyManager", SlashingPolicyABI);
+  const map = await getSlashingByCountryAndCategory();
+
+  const alerts = [] as Array<{ country: string; category: string; brn: number; threshold: number }>;
+
+  for (const [country, catMap] of Object.entries(map)) {
+    for (const [category, brn] of Object.entries(catMap)) {
+      const threshold = await contract.getThreshold(country, category);
+      if (threshold && brn >= Number(threshold)) {
+        alerts.push({ country, category, brn, threshold: Number(threshold) });
       }
     }
   }
