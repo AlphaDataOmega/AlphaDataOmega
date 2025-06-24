@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { loadContract } from "@/utils/contract";
 import SlashingPolicyABI from "@/abi/SlashingPolicyManager.json";
 import { fetchRecentSlashingEvents } from "@/utils/fetchLogs";
-import countryCodes from "@/data/countryCodes.json";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
