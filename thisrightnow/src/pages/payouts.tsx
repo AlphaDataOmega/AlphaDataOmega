@@ -34,6 +34,24 @@ export default function PayoutsDashboard() {
         <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
           <h3 className="text-red-800 font-bold">🔥 Slashing Inflow</h3>
           <p>{Number(inflow.slashing || 0).toFixed(2)} BRN redirected to DAO</p>
+
+          {inflow.slashingByCategoryAndRegion && (
+            <>
+              <h2 className="text-xl font-bold mt-8">🔥 Slashing Summary</h2>
+              <ul>
+                {Object.entries(inflow.slashingByCategoryAndRegion).map(
+                  ([country, catMap]) => (
+                    <li key={country}>
+                      <strong>{country}:</strong>{" "}
+                      {Object.entries(catMap)
+                        .map(([cat, brn]) => `${cat}: ${brn} BRN`)
+                        .join(", ")}
+                    </li>
+                  )
+                )}
+              </ul>
+            </>
+          )}
         </div>
       )}
 
