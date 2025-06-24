@@ -46,6 +46,7 @@ contract ProposalFactory {
     event ProposalApproved(uint256 indexed proposalId);
     event ProposalVetoed(uint256 indexed proposalId);
     event Voted(uint256 indexed proposalId, address indexed voter, bool support);
+    event VoteCast(uint256 proposalId, address voter, bool support);
     event Executed(uint256 indexed proposalId);
 
     constructor(
@@ -124,6 +125,7 @@ contract ProposalFactory {
         p.voted[msg.sender] = true;
 
         emit Voted(proposalId, msg.sender, support);
+        emit VoteCast(proposalId, msg.sender, support);
     }
 
     function executeProposal(uint256 proposalId) external {

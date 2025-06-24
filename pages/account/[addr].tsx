@@ -49,6 +49,12 @@ export default function AccountTrustPage() {
       >
         View trust score history →
       </Link>
+      <Link
+        href={`/account/${addr}/votes`}
+        className="text-blue-600 underline text-sm mt-2 block"
+      >
+        🗳️ Votes
+      </Link>
     </div>
   );
 }
