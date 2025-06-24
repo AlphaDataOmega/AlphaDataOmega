@@ -10,27 +10,45 @@ describe("DAO Proposal Lifecycle", () => {
 
     const CouncilNFT = await ethers.getContractFactory("CouncilNFT");
     const MasterNFT = await ethers.getContractFactory("MasterNFT");
+    const Oracle = await ethers.getContractFactory("TRNUsageOracle");
+    const VoterNFT = await ethers.getContractFactory("MockVoterNFT");
+    const Ruleset = await ethers.getContractFactory("MockCountryRulesetManager");
     const ProposalFactoryContract = await ethers.getContractFactory("ProposalFactory");
 
     const councilNFT = await CouncilNFT.deploy();
     const masterNFT = await MasterNFT.deploy();
+    const oracle = await Oracle.deploy();
+    const voterNFT = await VoterNFT.deploy();
+    const ruleset = await Ruleset.deploy();
 
     await councilNFT.mint(council.address);
     await masterNFT.mint(master.address);
+    await voterNFT.mint(council.address);
+    await voterNFT.mint(user1.address);
 
-    ProposalFactory = await ProposalFactoryContract.deploy(councilNFT.target, masterNFT.target);
+    ProposalFactory = await ProposalFactoryContract.deploy(
+      councilNFT.target,
+      masterNFT.target,
+      oracle.target,
+      voterNFT.target,
+      ruleset.target
+    );
     proposalFactory = ProposalFactory.connect(council);
   });
 
   it("should create a proposal", async () => {
-    const tx = await proposalFactory.createProposal("Mute category X", 1);
+    const tx = await proposalFactory.createProposal(
+      "Mute category X",
+      "Mute category X",
+      "0x"
+    );
     const receipt = await tx.wait();
     const event = receipt!.logs.find((e: any) => e.fragment?.name === "ProposalCreated");
-    expect(event?.args?.description).to.equal("Mute category X");
+    expect(event?.args?.title).to.equal("Mute category X");
   });
 
   it("should allow Council to pass a proposal", async () => {
-    const idTx = await proposalFactory.createProposal("Ban content", 2);
+    const idTx = await proposalFactory.createProposal("Ban content", "Ban content", "0x");
     const receipt = await idTx.wait();
     const id = receipt!.logs[0]!.args!.proposalId;
 
@@ -40,7 +58,7 @@ describe("DAO Proposal Lifecycle", () => {
   });
 
   it("should allow Master to veto", async () => {
-    const idTx = await proposalFactory.createProposal("Allow spam", 3);
+    const idTx = await proposalFactory.createProposal("Allow spam", "Allow spam", "0x");
     const id = (await idTx.wait()).logs[0].args.proposalId;
 
     await proposalFactory.passProposal(id);
@@ -52,7 +70,7 @@ describe("DAO Proposal Lifecycle", () => {
   });
 
   it("should allow full passage to user vote", async () => {
-    const idTx = await proposalFactory.createProposal("Mute Y", 5);
+    const idTx = await proposalFactory.createProposal("Mute Y", "Mute Y", "0x");
     const id = (await idTx.wait()).logs[0].args.proposalId;
 
     await proposalFactory.passProposal(id);
@@ -64,7 +82,7 @@ describe("DAO Proposal Lifecycle", () => {
   });
 
   it("should not allow duplicate execution or invalid state transitions", async () => {
-    const idTx = await proposalFactory.createProposal("Test", 5);
+    const idTx = await proposalFactory.createProposal("Test", "Test", "0x");
     const id = (await idTx.wait()).logs[0].args.proposalId;
 
     await proposalFactory.passProposal(id);
