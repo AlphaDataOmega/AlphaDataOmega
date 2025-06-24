@@ -1,0 +1,12 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "uint256", "name": "proposalId", "type": "uint256" },
+      { "indexed": false, "internalType": "address", "name": "voter", "type": "address" },
+      { "indexed": false, "internalType": "bool", "name": "support", "type": "bool" }
+    ],
+    "name": "VoteCast",
+    "type": "event"
+  }
+]
