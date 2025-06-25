@@ -48,3 +48,34 @@ export async function approveRecovery(
   const contract = await loadContract(CONTRACT_NAME, RecoveryOracleABI, wallet);
   return await contract.write.approveRecovery([contributor, BigInt(shardIndex)]);
 }
+
+export async function getPendingRecoveries() {
+  const client = await getPublicClient();
+  const contract = await loadContract(CONTRACT_NAME, RecoveryOracleABI, client);
+
+  const [initiator, start, recovered] = await Promise.all([
+    contract.read.getInitiator(),
+    contract.read.getStartTime(),
+    contract.read.isRecovered(),
+  ]);
+
+  if (!initiator || start === 0n || recovered) {
+    return [] as Array<{ contributor: string; shardCount: number; approved: boolean[] }>;
+  }
+
+  const shardCount = 7;
+  const approvals = await Promise.all(
+    Array.from({ length: shardCount }).map(async (_, i) => {
+      const holder = await contract.read.shardHolders([BigInt(i)]);
+      return await contract.read.hasApproved({ args: [holder] });
+    })
+  );
+
+  return [
+    {
+      contributor: initiator,
+      shardCount,
+      approved: approvals,
+    },
+  ] as Array<{ contributor: string; shardCount: number; approved: boolean[] }>;
+}
