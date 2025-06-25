@@ -37,7 +37,19 @@ describe("RecoveryOracle", () => {
       await oracle.connect(await ethers.getSigner(shardHolders[i])).approveRecovery();
     }
 
+    await oracle.maybeRestoreVault();
+
     expect(await oracle.isRecovered()).to.be.true;
+  });
+
+  it("should fail to finalize recovery before enough approvals", async () => {
+    await oracle.connect(nonShard).initiateRecovery();
+
+    await oracle.connect(await ethers.getSigner(shardHolders[0])).approveRecovery();
+
+    await expect(oracle.maybeRestoreVault()).to.be.revertedWith("Not enough approvals");
+
+    expect(await oracle.isRecovered()).to.be.false;
   });
 
   it("should not allow duplicate approvals", async () => {

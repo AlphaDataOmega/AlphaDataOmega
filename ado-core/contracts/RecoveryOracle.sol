@@ -98,11 +98,16 @@ contract RecoveryOracle {
         approvals.push(msg.sender);
 
         emit ShardApproved(msg.sender);
+    }
 
-        if (approvals.length >= REQUIRED_APPROVALS) {
-            recovered = true;
-            emit RecoveryCompleted(initiator);
-        }
+    /// @notice Finalize the recovery once enough approvals have been collected
+    function maybeRestoreVault() external {
+        require(!recovered, "Vault already restored");
+        require(approvals.length >= REQUIRED_APPROVALS, "Not enough approvals");
+
+        recovered = true;
+
+        emit RecoveryCompleted(initiator);
     }
 
     /// ---------------------------------------------------------------------
