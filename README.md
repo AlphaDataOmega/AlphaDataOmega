@@ -51,12 +51,18 @@ AlphaDataOmega is a decentralized social protocol and economic system built to r
    cd ../thisrightnow && npm install
    ```
 
-4. Run tests and lint checks:
+4. Create a `.env` file inside `thisrightnow/` and set your NFT.Storage key:
+
+   ```bash
+   echo "VITE_NFT_STORAGE_KEY=<your key>" > thisrightnow/.env
+   ```
+
+5. Run tests and lint checks:
    - From `ado-core/` run `npx hardhat test`
    - Use `npx ts-node test/RetrnScoreEngine.test.ts` (or the provided npm script) for the standalone engine test
    - From `thisrightnow/` run `npm run lint`
 
-5. Suggested first steps:
+6. Suggested first steps:
    - Review `contracts/ViewIndex.sol`
    - Build out basic post/feed UI in `frontend/`
    - Test Merkle drop logic from `indexer/` hooks
