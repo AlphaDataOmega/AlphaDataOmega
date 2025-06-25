@@ -4,6 +4,12 @@ import { getPublicClient, getWalletClient } from "wagmi/actions";
 
 const CONTRACT_NAME = "RecoveryOracle";
 
+export type RecoveryEntry = {
+  contributor: string;
+  shardCount: number;
+  approved: boolean[];
+};
+
 export async function fetchRecoveryStatus() {
   const client = await getPublicClient();
   const contract = await loadContract(CONTRACT_NAME, RecoveryOracleABI, client);
@@ -49,33 +55,29 @@ export async function approveRecovery(
   return await contract.write.approveRecovery([contributor, BigInt(shardIndex)]);
 }
 
-export async function getPendingRecoveries() {
+export async function getPendingRecoveries(): Promise<RecoveryEntry[]> {
   const client = await getPublicClient();
   const contract = await loadContract(CONTRACT_NAME, RecoveryOracleABI, client);
 
-  const [initiator, start, recovered] = await Promise.all([
-    contract.read.getInitiator(),
-    contract.read.getStartTime(),
-    contract.read.isRecovered(),
-  ]);
+  const contributors: string[] = await contract.read.getPendingVaults();
 
-  if (!initiator || start === 0n || recovered) {
-    return [] as Array<{ contributor: string; shardCount: number; approved: boolean[] }>;
-  }
+  const results: RecoveryEntry[] = await Promise.all(
+    contributors.map(async (addr) => {
+      const shardCount: number = Number(await contract.read.getShardCount([addr]));
+      const approved: boolean[] = [];
 
-  const shardCount = 7;
-  const approvals = await Promise.all(
-    Array.from({ length: shardCount }).map(async (_, i) => {
-      const holder = await contract.read.shardHolders([BigInt(i)]);
-      return await contract.read.hasApproved({ args: [holder] });
+      for (let i = 0; i < shardCount; i++) {
+        const isApproved = await contract.read.isShardApproved({ args: [addr, BigInt(i)] });
+        approved.push(isApproved);
+      }
+
+      return {
+        contributor: addr,
+        shardCount,
+        approved,
+      } as RecoveryEntry;
     })
   );
 
-  return [
-    {
-      contributor: initiator,
-      shardCount,
-      approved: approvals,
-    },
-  ] as Array<{ contributor: string; shardCount: number; approved: boolean[] }>;
+  return results;
 }
