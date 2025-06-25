@@ -39,3 +39,12 @@ export async function submitApproval() {
   const contract = await loadContract(CONTRACT_NAME, RecoveryOracleABI, wallet);
   return await contract.write.approveRecovery();
 }
+
+export async function approveRecovery(
+  contributor: string,
+  shardIndex: number,
+) {
+  const wallet = await getWalletClient();
+  const contract = await loadContract(CONTRACT_NAME, RecoveryOracleABI, wallet);
+  return await contract.write.approveRecovery([contributor, BigInt(shardIndex)]);
+}
