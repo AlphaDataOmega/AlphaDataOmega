@@ -1,30 +1,27 @@
 import { fetchTrustScore } from "./fetchTrustScore";
-import TrustOracleABI from "@/abi/TrustScoreEngine.json";
+import OracleABI from "@/abi/TRNUsageOracle.json";
 import { loadContract } from "./contract";
 
-const trustScoreMap: Record<string, number> = {
-  "0xtrustedalpha...": 94,
-  "0xbotfarm123...": 22,
-};
+export async function getTrustScore(address: string, category = "general"): Promise<number> {
+  return fetchTrustScore(address, category);
+}
 
-export function getTrustWeight(address: string): number {
-  const score = trustScoreMap[address.toLowerCase()] || 50;
+export async function getTrustWeight(address: string, category = "general"): Promise<number> {
+  const score = await fetchTrustScore(address, category);
   return score >= 90 ? 1.25 : score >= 70 ? 1.1 : 0.9;
 }
 
-export async function getTrustScore(address: string): Promise<number> {
-  return fetchTrustScore(address);
-}
-
 export async function getTrustMap(address: string) {
-  const contract = await loadContract("TrustScoreEngine", TrustOracleABI as any);
+  // TODO: Replace with your deployed TRNUsageOracle contract address
+  const TRN_USAGE_ORACLE_ADDRESS = process.env.NEXT_PUBLIC_TRN_USAGE_ORACLE_ADDRESS || "0xYourOracleAddressHere";
+  const contract = await loadContract(TRN_USAGE_ORACLE_ADDRESS, OracleABI as any);
   const categories: string[] = ["general", "tech", "art", "politics", "finance"];
 
   const map: Record<string, number> = {};
   for (const cat of categories) {
     const score = await (contract as any)
-      .getScore(cat, address)
-      .catch(() => 0);
+      .getTrustScore(address, cat)
+      .catch(() => 50);
     map[cat] = Number(score);
   }
 

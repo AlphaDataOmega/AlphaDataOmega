@@ -1,13 +1,14 @@
-// A lightweight trust hook for now, wired to mock data
-const MOCK_TRUST: Record<string, number> = {
-  "0xMOD123...": 92,
-  "0xBOT456...": 25,
-  "0xALPHA...": 88,
-};
+import { fetchTrustScore } from "@/utils/fetchTrustScore";
+import { useState, useEffect } from "react";
 
-export function useTrustScore(address: string) {
-  const normalized = address.toLowerCase();
-  const score = MOCK_TRUST[normalized] ?? Math.floor(Math.random() * 60) + 30;
+export function useTrustScore(address: string, category = "general") {
+  const [score, setScore] = useState<number>(50);
+
+  useEffect(() => {
+    if (!address) return;
+    fetchTrustScore(address, category).then(setScore);
+  }, [address, category]);
+
   return { score };
 }
 
