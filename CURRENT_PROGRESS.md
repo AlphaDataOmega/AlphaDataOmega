@@ -28,6 +28,19 @@ According to the roadmap in `README.md`:
 - Implemented vote tracking and a governance leaderboard, surfacing participation metrics through API routes and pages.
 - Scaffolding for RecoveryOracle and manual vault restoration logic added in contracts and scripts.
 
+## Finished and Tested Features
+
+The following modules now have passing tests and are considered functional for early development:
+
+- `ado-core/test/BoostingFlow.test.ts` verifies boost funding flows and viewer rewards.
+- `ado-core/test/FlagEscalator.test.ts` exercises BRN staking and DAO slashing logic.
+- `ado-core/test/ProposalFactory.test.ts` confirms proposal creation, voting, and execution.
+- `ado-core/test/VaultRecovery.test.ts` covers shard-based account recovery operations.
+- `ado-core/test/UserSettingsManager.test.ts` checks per-account settings storage.
+- `test/FlagEscalationAI.test.ts` and `test/moderationEngine.test.ts` validate moderation heuristics.
+- `test/LottoModule.test.ts` ensures weighted lottery draws behave as expected.
+- `test/RetrnScoreEngine.test.ts` and `test/applyTrustWeighting.test.ts` confirm resonance and trust weighting math.
+
 ## Test and Lint Status
 
 Automated tests exist under `test/` but require `ts-node` and package installs. Test runs were attempted in this environment but failed due to missing dependencies, so results are pending.
