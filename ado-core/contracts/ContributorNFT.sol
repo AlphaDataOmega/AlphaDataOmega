@@ -13,7 +13,7 @@ contract ContributorNFT is ERC721URIStorage, Ownable {
     event ContributorMinted(address indexed user, uint256 tokenId);
     event VaultLinked(address indexed user, string cid);
 
-    constructor() ERC721("ContributorNFT", "cNFT") Ownable(msg.sender) {}
+    constructor() ERC721("ContributorNFT", "cNFT") Ownable() {}
 
     function mint(string calldata _vaultCID) external {
         require(!hasMinted[msg.sender], "Already minted");

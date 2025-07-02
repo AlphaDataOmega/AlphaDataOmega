@@ -4,11 +4,13 @@ import BoostingModuleABI from "./abis/BoostingModule.json";
 import { getLogs } from "../utils/getLogs";
 import { getTrustScore } from "../utils/TrustScoreEngine";
 import { getPostCreator, getPostCategory } from "../utils/postMeta";
+import { getGeoDataForPost } from "../utils/postGeoLookup";
 
 export type PostEarning = {
   postHash: string;
   creator: string;
   category: string;
+  regionCode: string | null;
   totalEarned: number;
 };
 
@@ -50,9 +52,10 @@ export async function aggregatePostEarnings(): Promise<PostEarning[]> {
   for (const [hash, raw] of Object.entries(totals)) {
     const creator = await getPostCreator(hash);
     const category = await getPostCategory(hash);
+    const regionCode = await getGeoDataForPost(hash);
     const trust = await getTrustScore(creator, category);
     const adjusted = (raw * trust) / 100;
-    results.push({ postHash: hash, creator, category, totalEarned: adjusted });
+    results.push({ postHash: hash, creator, category, regionCode, totalEarned: adjusted });
   }
 
   return results;

@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const trustMap = await getTrustMap(addr.toLowerCase());
-    res.status(200).json(trustMap);
+    res.status(200).json({ trust: trustMap });
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch trust map" });
